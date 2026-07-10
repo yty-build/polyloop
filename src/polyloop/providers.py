@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import shlex
 import shutil
-from pathlib import Path
 
 from .config import ProjectConfig, RoleConfig
 
@@ -87,29 +86,61 @@ def build_launch_command(argv: list[str]) -> str:
     return "exec " + shlex.join(argv)
 
 
-def load_role_context(root: Path, role_name: str) -> str:
+def load_role_context(config: ProjectConfig, role_name: str) -> str:
+    root = config.root
     shared_path = root / "roles" / "shared.md"
     role_path = root / "roles" / f"{role_name}.md"
     shared = shared_path.read_text(encoding="utf-8")
     role = role_path.read_text(encoding="utf-8")
-    return (
+    context = (
         "# Polyloop Runtime Contract\n\n"
         f"Workspace: {root}\n"
         f"Role: {role_name}\n\n"
         f"{shared.rstrip()}\n\n{role.rstrip()}\n"
     )
+    researcher = config.external_researcher
+    if role_name == "council" and researcher and researcher.enabled:
+        context += (
+            "\n# External Researcher Runtime\n\n"
+            "Function: external-researcher\n"
+            f"Provider: {researcher.provider}\n"
+            f"Command prefix: {shlex.join(researcher.command)}\n\n"
+            "Append exactly one bounded research brief as the final command argument. "
+            "Capture and parse stdout as the response. Do not start a persistent process.\n"
+        )
+    return context
 
 
-def startup_prompt(role_name: str) -> str:
+def startup_prompt(role_name: str, provider: str = "codex") -> str:
     if role_name == "manager":
+        if provider == "codex":
+            native_goal = (
+                "For Codex, directly create or resume the native goal; do not merely "
+                "print a /goal command for the human to type. "
+            )
+        else:
+            native_goal = (
+                "Use the provider's native durable goal or loop control when available; "
+                "otherwise report that the campaign is ready and wait. "
+            )
         return (
-            "Read PROJECT_CHARTER.md, CAMPAIGN.md, CURRENT_EXPERIMENT.md, "
-            "LEADERBOARD.md, and LESSONS.md. This is initialization only. "
-            "Reply exactly 'READY: manager' and wait for the user to activate "
-            "the bounded campaign goal. Do not modify files or dispatch work yet."
+            "First read only the TOML front matter in CAMPAIGN.md and run polyloop "
+            "status. If the campaign is not status ready or active with auto_start = "
+            "true, immediately reply 'READY: manager' with the missing activation "
+            "conditions and wait. In that waiting path, do not load domain skills or "
+            "sync skills; do not access external systems, modify files, or dispatch work. "
+            "If and only if activation is eligible, read AGENTS.md, PROJECT_CHARTER.md, "
+            "the full CAMPAIGN.md, CURRENT_EXPERIMENT.md, LEADERBOARD.md, and LESSONS.md. "
+            "Validate its finite objective, stopping conditions, starting evidence, "
+            "evaluator, paper requirement, resource boundary, and safety limits. "
+            + native_goal
+            + "Use the Manager Goal Primer as the objective, mark a ready campaign active "
+            "after the goal is attached, and begin the manager loop. If validation fails, "
+            "report the blockers, leave the campaign unstarted, and wait. Never start a "
+            "different campaign."
         )
     return (
-        "Read PROJECT_CHARTER.md, CAMPAIGN.md, CURRENT_EXPERIMENT.md, "
+        "Read AGENTS.md, PROJECT_CHARTER.md, CAMPAIGN.md, CURRENT_EXPERIMENT.md, "
         "LEADERBOARD.md, and LESSONS.md. This is initialization only. "
         f"Reply exactly 'READY: {role_name}' and wait for a finite manager assignment. "
         "Do not modify files or begin work yet."

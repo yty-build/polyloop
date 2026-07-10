@@ -238,12 +238,12 @@ def ensure_tmux_session(
                 )
             continue
 
-        context = load_role_context(config.root, role_name)
+        context = load_role_context(config, role_name)
         argv = build_launch_argv(
             config,
             role,
             role_context=context,
-            startup_prompt=startup_prompt(role_name),
+            startup_prompt=startup_prompt(role_name, role.provider),
         )
         tmux.run(
             "respawn-pane",

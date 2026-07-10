@@ -28,11 +28,19 @@ class RoleConfig:
 
 
 @dataclass(frozen=True)
+class ExternalResearcherConfig:
+    enabled: bool
+    provider: str
+    command: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class ProjectConfig:
     root: Path
     session: str
     description: str
     notes_file: Path | None
+    external_researcher: ExternalResearcherConfig | None
     roles: dict[str, RoleConfig]
 
 
@@ -73,6 +81,8 @@ def load_config(root: Path) -> ProjectConfig:
     notes_file = (
         Path(os.path.expandvars(notes_value)).expanduser() if notes_value else None
     )
+
+    external_researcher = _load_external_researcher(raw)
 
     roles_raw = raw.get("roles")
     if not isinstance(roles_raw, dict):
@@ -118,6 +128,7 @@ def load_config(root: Path) -> ProjectConfig:
         session=session,
         description=description,
         notes_file=notes_file,
+        external_researcher=external_researcher,
         roles=roles,
     )
 
@@ -147,6 +158,29 @@ def write_default_config(
         f"session = {_toml_string(session)}",
         f"description = {_toml_string(description)}",
         f"notes_file = {_toml_string(notes_file)}",
+        "",
+        "[external_researcher]",
+        "enabled = false",
+        'provider = "grok"',
+        "command = "
+        + json.dumps(
+            [
+                "grok",
+                "--yolo",
+                "--cwd",
+                "/tmp",
+                "--no-plan",
+                "--no-memory",
+                "--no-subagents",
+                "--max-turns",
+                "12",
+                "--disallowed-tools",
+                "run_terminal_cmd,search_replace,use_tool",
+                "--output-format",
+                "plain",
+                "--single",
+            ]
+        ),
     ]
     for role in ROLES:
         lines.extend(
@@ -171,6 +205,34 @@ def _required_string(data: dict[str, object], key: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ConfigError(f"{key} must be a non-empty string")
     return value.strip()
+
+
+def _load_external_researcher(
+    raw: dict[str, object],
+) -> ExternalResearcherConfig | None:
+    researcher_raw = raw.get("external_researcher")
+    if researcher_raw is None:
+        return None
+    if not isinstance(researcher_raw, dict):
+        raise ConfigError("external_researcher must be a TOML table")
+    enabled = researcher_raw.get("enabled", False)
+    if not isinstance(enabled, bool):
+        raise ConfigError("external_researcher.enabled must be a boolean")
+    provider = _required_string(researcher_raw, "provider")
+    command_raw = researcher_raw.get("command")
+    if (
+        not isinstance(command_raw, list)
+        or not command_raw
+        or not all(isinstance(value, str) and value for value in command_raw)
+    ):
+        raise ConfigError(
+            "external_researcher.command must be a non-empty array of strings"
+        )
+    return ExternalResearcherConfig(
+        enabled=enabled,
+        provider=provider,
+        command=tuple(command_raw),
+    )
 
 
 def _toml_string(value: str) -> str:

@@ -32,6 +32,30 @@ def test_default_config_round_trip(
         "retrospector",
     }
     assert all(role.provider == "codex" for role in config.roles.values())
+    assert config.external_researcher is not None
+    assert config.external_researcher.enabled is False
+    assert config.external_researcher.provider == "grok"
+    assert config.external_researcher.command[:2] == ("grok", "--yolo")
+    assert ("--cwd", "/tmp") == config.external_researcher.command[2:4]
+    assert "run_terminal_cmd,search_replace,use_tool" in (
+        config.external_researcher.command
+    )
+
+
+def test_external_researcher_must_have_a_command(tmp_path: Path) -> None:
+    path = write_default_config(
+        tmp_path,
+        session="bad-researcher",
+        description="bad",
+        provider="codex",
+    )
+    content = path.read_text(encoding="utf-8")
+    start = content.index("command = [")
+    end = content.index("\n", start)
+    path.write_text(content[:start] + "command = []" + content[end:], encoding="utf-8")
+
+    with pytest.raises(ConfigError, match="non-empty array"):
+        load_config(tmp_path)
 
 
 @pytest.mark.parametrize(

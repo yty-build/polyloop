@@ -42,6 +42,11 @@ def build_status_report(
     if campaign_warnings:
         healthy = False
 
+    researcher_line, researcher_warning = _external_researcher_status(config)
+    lines.append(f"Research:  {researcher_line}")
+    if researcher_warning:
+        healthy = False
+
     git_line, git_warning = _git_status(config)
     lines.append(f"Git:       {git_line}")
     if git_warning:
@@ -109,6 +114,8 @@ def build_status_report(
     if extra_windows:
         warnings.append("extra tmux windows: " + ", ".join(extra_windows))
     warnings.extend(campaign_warnings)
+    if researcher_warning:
+        warnings.append(researcher_warning)
     if git_warning:
         warnings.append(git_warning)
     if warnings:
@@ -116,6 +123,23 @@ def build_status_report(
         lines.extend(f"- {warning}" for warning in warnings)
     lines.extend(("", f"Attach: tattach {config.session}"))
     return StatusReport("\n".join(lines), healthy)
+
+
+def _external_researcher_status(
+    config: ProjectConfig,
+) -> tuple[str, str | None]:
+    researcher = config.external_researcher
+    if researcher is None:
+        return "not configured", None
+    if not researcher.enabled:
+        return f"{researcher.provider} disabled", None
+    executable = researcher.command[0]
+    if shutil.which(executable) is None:
+        return (
+            f"{researcher.provider} missing ({executable})",
+            f"external researcher executable {executable!r} is not installed",
+        )
+    return f"{researcher.provider} ready ({executable})", None
 
 
 def _campaign_status(config: ProjectConfig) -> tuple[str, str, list[str]]:
@@ -139,9 +163,17 @@ def _campaign_status(config: ProjectConfig) -> tuple[str, str, list[str]]:
     raw_campaign_id = str(campaign.get("id", "")).strip()
     campaign_id = raw_campaign_id or "none"
     status = str(campaign.get("status", "unknown"))
+    raw_auto_start = campaign.get("auto_start", False)
+    auto_start = raw_auto_start if isinstance(raw_auto_start, bool) else False
     experiment_id = str(experiment.get("experiment", "")).strip() or "none"
     stage = str(experiment.get("stage", "unknown"))
     warnings: list[str] = []
+    if not isinstance(raw_auto_start, bool):
+        warnings.append("CAMPAIGN.md auto_start must be a TOML boolean")
+    if auto_start and status not in {"ready", "active"}:
+        warnings.append(
+            f"campaign auto_start is enabled while status is {status}; manager will not activate it"
+        )
     experiment_campaign = str(experiment.get("campaign", "")).strip()
     if experiment_id != "none" and experiment_campaign != raw_campaign_id:
         warnings.append(
@@ -158,7 +190,8 @@ def _campaign_status(config: ProjectConfig) -> tuple[str, str, list[str]]:
     warnings.extend(observation.warnings)
 
     return (
-        f"{campaign_id} {status}, active={experiment_id}, stage={stage}",
+        f"{campaign_id} {status}, auto-start={'on' if auto_start else 'off'}, "
+        f"active={experiment_id}, stage={stage}",
         f"{observation.current_campaign_recorded} recorded in {campaign_id}, "
         f"{observation.total_recorded} recorded across workspace",
         warnings,

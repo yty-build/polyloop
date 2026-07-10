@@ -57,6 +57,7 @@ def create_project_files(
     created: list[Path] = []
     project_templates = {
         ".gitignore": "gitignore.md",
+        "AGENTS.md": "AGENTS.md",
         "PROJECT_CHARTER.md": "PROJECT_CHARTER.md",
         "CAMPAIGN.md": "CAMPAIGN.md",
         "CURRENT_EXPERIMENT.md": "CURRENT_EXPERIMENT.md",

@@ -18,9 +18,15 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
 
     second = create_project_files(tmp_path, **arguments)
 
-    assert len(first) == 15
+    assert len(first) == 16
     assert second == []
     assert charter.read_text(encoding="utf-8") == "human-owned charter\n"
+    assert "directly create the provider-native finite goal" in (
+        tmp_path / "AGENTS.md"
+    ).read_text(encoding="utf-8")
+    campaign = (tmp_path / "CAMPAIGN.md").read_text(encoding="utf-8")
+    assert 'status = "draft"' in campaign
+    assert "auto_start = false" in campaign
     assert (tmp_path / "experiments" / "EXPERIMENT_TEMPLATE.md").is_file()
     assert (tmp_path / "campaigns" / ".gitkeep").is_file()
 

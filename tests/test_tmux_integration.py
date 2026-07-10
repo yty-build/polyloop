@@ -85,6 +85,7 @@ def test_init_is_idempotent_and_status_is_healthy(
     ]
     output = capsys.readouterr().out
     assert "Experiments: 0 recorded in none, 0 recorded across workspace" in output
+    assert "Campaign:  none draft, auto-start=off" in output
     assert "Attach: tattach test-strategy" in output
 
 

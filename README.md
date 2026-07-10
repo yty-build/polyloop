@@ -46,7 +46,7 @@ polyloop init \
   --objective "Find robust paper-only challengers to the verified champion"
 ```
 
-Polyloop creates project contracts, role prompts, a named tmux session, and one model process per role. It does not attach automatically:
+Polyloop creates project contracts, a repository-level `AGENTS.md`, role prompts, a named tmux session, and one model process per role. It does not attach automatically:
 
 ```bash
 tls
@@ -87,15 +87,34 @@ extra_args = []
 
 `resume_session` is optional and provider-native. Polyloop never reads or modifies provider goal databases and does not install hooks.
 
+Codex's workspace-write sandbox blocks the local tmux Unix socket unless network access is enabled. A manager that must inspect or message its role windows can use `extra_args = ["--sandbox", "workspace-write", "--config", "sandbox_workspace_write.network_access=true"]`. This keeps filesystem writes scoped to the workspace but enables network access, so apply it only to roles that need it. Polyloop does not use full-access or sandbox-bypass flags by default.
+
+## External Research
+
+External discovery is a council-owned callable function, not a seventh tmux role. Configure its current provider and command independently:
+
+```toml
+[external_researcher]
+enabled = true
+provider = "grok"
+command = ["grok", "--yolo", "--cwd", "/tmp", "--no-plan", "--no-memory", "--no-subagents", "--max-turns", "12", "--disallowed-tools", "run_terminal_cmd,search_replace,use_tool", "--output-format", "plain", "--single"]
+```
+
+The council appends one bounded research brief, asks for structured JSON, and captures stdout separately from provider diagnostics on stderr. The Grok command runs from `/tmp` and uses auto-approval while explicitly disabling terminal execution, repository editing, and the generic integration bridge that can expose inherited MCP tools. Social sources can generate experiment ideas, but every used source must be carried into the experiment record and independently tested by the canonical verifier. Replacing Grok later changes the provider and command, not the function or tmux topology.
+
 ## Prompt Model
 
-The files in `roles/` are the authoritative runtime contracts. On launch, Polyloop reads `roles/shared.md` and the function-specific role file and injects that content using the provider's supported context mechanism. The model is then told to read the current project and campaign files and wait for a finite assignment.
+`AGENTS.md` is the workspace-wide Codex contract. The files in `roles/` are the authoritative function contracts. On launch, Polyloop reads `roles/shared.md` and the function-specific role file and injects that content using the provider's supported context mechanism. Workers are then told to read the current project and campaign files and wait for a finite assignment.
 
 Detailed assignments and handoffs belong in `CURRENT_EXPERIMENT.md`; tmux messages should only wake the relevant role. Before the manager replaces the current experiment, it preserves that experiment as `experiments/E####.md`. Polyloop counts unique experiment IDs from the current record and historical records regardless of status or decision; it never increments, limits, or controls them.
 
 ## Campaign Goals
 
-`CAMPAIGN.md` is owned by the strategy manager. It defines a finite research objective, starting evidence, resource boundary, and stop conditions. It deliberately contains no Polyloop-controlled experiment limit. Activate its goal manually in the manager window using the provider's native goal command. Worker assignments remain finite to one stage of one experiment.
+`CAMPAIGN.md` is owned by the strategy manager and is also the campaign seed. It defines a finite research objective, starting evidence, paper requirement, resource boundary, and stop conditions. It deliberately contains no Polyloop-controlled experiment limit.
+
+Campaign auto-start is explicit. Keep `status = "draft"` and `auto_start = false` until the seed is complete. Setting `status = "ready"` and `auto_start = true` tells the next manager launch to validate the seed and directly create its provider-native finite goal. For Codex this uses native goal control, so no `/goal` command needs to be typed in the manager window. `paused` and `complete` never auto-start.
+
+For a model-assisted bootstrap, start Codex in this repository and ask it to initialize a target strategy. The repository `AGENTS.md` tells it to scaffold with `--no-launch`, complete the seed, and launch the roles only after the seed is ready. `AGENTS.md` supplies instructions but does not execute merely because a bare Codex TUI was opened; either the bootstrap request or Polyloop's injected manager startup prompt begins work.
 
 Only one campaign is active in a strategy session at a time. At close, preserve its record under `campaigns/`; the next campaign reads the committed charter, champion, leaderboard, market-level lessons, campaign closeouts, and recorded experiments rather than depending on transcript memory. Pause and resume through tmux and the provider's native controls.
 

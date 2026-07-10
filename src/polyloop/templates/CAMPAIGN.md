@@ -1,15 +1,20 @@
 +++
 id = ""
-status = "not_started"
+status = "draft"
+auto_start = false
 +++
 
 # Current Campaign
 
 The strategy manager owns this campaign record. Polyloop does not create experiments, impose an experiment limit, advance stages, or decide when the campaign is complete.
 
+## Activation
+
+Keep `status = "draft"` and `auto_start = false` while required seed fields are missing. After the seed is complete, set `status = "ready"` and `auto_start = true` to let the next manager launch validate this record and directly create its provider-native finite goal. Use `status = "paused"` to freeze the campaign; paused and completed campaigns never auto-start.
+
 ## Campaign Objective
 
-No campaign has been activated. Define a concrete research outcome that can be completed or stopped without requiring an indefinite loop.
+$objective
 
 ## Starting Evidence
 
