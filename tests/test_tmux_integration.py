@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import uuid
@@ -33,6 +34,12 @@ def test_init_is_idempotent_and_status_is_healthy(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     monkeypatch.setenv("POLYLOOP_NOTES_FILE", str(tmp_path / "tmux-notes"))
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    fake_codex = fake_bin / "codex"
+    fake_codex.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    fake_codex.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{fake_bin}{os.pathsep}{os.environ.get('PATH', '')}")
     project = tmp_path / "strategy"
     args = [
         "init",
