@@ -1,0 +1,42 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install tmux on Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y tmux
+
+      - name: Install tmux on macOS
+        if: runner.os == 'macOS'
+        run: brew install tmux
+
+      - name: Install package and checks
+        run: python -m pip install -e . pytest ruff
+
+      - name: Lint
+        run: ruff check . && ruff format --check .
+
+      - name: Test
+        run: pytest
+
