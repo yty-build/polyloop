@@ -44,8 +44,6 @@ def build_status_report(
 
     researcher_line, researcher_warning = _external_researcher_status(config)
     lines.append(f"Research:  {researcher_line}")
-    if researcher_warning:
-        healthy = False
 
     git_line, git_warning = _git_status(config)
     lines.append(f"Git:       {git_line}")
