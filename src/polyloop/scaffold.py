@@ -43,16 +43,12 @@ def create_project_files(
     *,
     session: str,
     description: str,
-    campaign_id: str,
-    max_experiments: int,
     market: str,
     objective: str,
 ) -> list[Path]:
     substitutions = {
         "session": session,
         "description": description or session,
-        "campaign_id": campaign_id,
-        "max_experiments": str(max_experiments),
         "market": market
         or "Define the exact Polymarket market before activating the campaign.",
         "objective": objective
@@ -66,6 +62,7 @@ def create_project_files(
         "CURRENT_EXPERIMENT.md": "CURRENT_EXPERIMENT.md",
         "LEADERBOARD.md": "LEADERBOARD.md",
         "LESSONS.md": "LESSONS.md",
+        "experiments/EXPERIMENT_TEMPLATE.md": "EXPERIMENT_TEMPLATE.md",
     }
     for destination, template_name in project_templates.items():
         path = root / destination
@@ -79,9 +76,9 @@ def create_project_files(
         if _create_from_template(path, f"roles/{role}.md", substitutions):
             created.append(path)
 
-    experiments_dir = root / "experiments"
-    experiments_dir.mkdir(parents=True, exist_ok=True)
-    keep = experiments_dir / ".gitkeep"
+    campaigns_dir = root / "campaigns"
+    campaigns_dir.mkdir(parents=True, exist_ok=True)
+    keep = campaigns_dir / ".gitkeep"
     if not keep.exists():
         keep.touch()
         created.append(keep)

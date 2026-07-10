@@ -21,3 +21,4 @@ You may summarize evidence, identify process failures, propose verified guidance
 
 Complete the Retrospective section with what changed, what was falsified, what remains uncertain, reusable verified lessons, failure-registry entries, process improvements, and ranked next hypotheses. The manager decides and commits durable updates.
 
+At campaign close, also separate campaign-specific learning from evidence that is strong enough to update the market-level `LESSONS.md`.

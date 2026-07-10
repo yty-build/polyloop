@@ -121,6 +121,9 @@ class Tmux:
     def set_environment(self, session: str, key: str, value: str) -> None:
         self.run("set-environment", "-t", session, key, value)
 
+    def unset_environment(self, session: str, key: str) -> None:
+        self.run("set-environment", "-u", "-t", session, key, check=False)
+
 
 def ensure_tmux_session(
     config: ProjectConfig,
@@ -183,11 +186,9 @@ def ensure_tmux_session(
     tmux.set_session_option(config.session, "@polyloop_description", config.description)
     tmux.set_environment(config.session, "POLYLOOP_SESSION", config.session)
     tmux.set_environment(config.session, "POLYLOOP_ROOT", str(config.root))
+    tmux.unset_environment(config.session, "POLYLOOP_CAMPAIGN")
     if os.environ.get("PATH"):
         tmux.set_environment(config.session, "PATH", os.environ["PATH"])
-    tmux.set_environment(
-        config.session, "POLYLOOP_CAMPAIGN", config.campaign.campaign_id
-    )
 
     by_name = {window.name: window for window in windows}
 

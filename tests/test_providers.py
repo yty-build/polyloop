@@ -9,8 +9,6 @@ def _config(tmp_path: Path, provider: str):
         tmp_path,
         session="test-strategy",
         description="test",
-        campaign_id="C001",
-        max_experiments=2,
         provider=provider,
     )
     return load_config(tmp_path)

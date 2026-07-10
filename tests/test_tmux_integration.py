@@ -53,8 +53,6 @@ def test_init_is_idempotent_and_status_is_healthy(
         "Synthetic market",
         "--objective",
         "Test orchestration",
-        "--experiments",
-        "2",
         "--no-launch",
     ]
 
@@ -85,7 +83,9 @@ def test_init_is_idempotent_and_status_is_healthy(
         "reality",
         "retrospector",
     ]
-    assert "Attach: tattach test-strategy" in capsys.readouterr().out
+    output = capsys.readouterr().out
+    assert "Experiments: 0 closed in none, 0 closed across workspace" in output
+    assert "Attach: tattach test-strategy" in output
 
 
 def test_session_cannot_be_claimed_by_two_workspaces(
@@ -95,32 +95,11 @@ def test_session_cannot_be_claimed_by_two_workspaces(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     monkeypatch.setenv("POLYLOOP_NOTES_FILE", str(tmp_path / "tmux-notes"))
-    common = ["--session", "shared-name", "--experiments", "1", "--no-launch"]
+    common = ["--session", "shared-name", "--no-launch"]
 
     assert main(["init", "--root", str(tmp_path / "one"), *common]) == 0
     assert main(["init", "--root", str(tmp_path / "two"), *common]) == 2
     assert "belongs to" in capsys.readouterr().err
-
-
-def test_zero_experiment_campaign_is_rejected(tmp_path: Path) -> None:
-    project = tmp_path / "invalid"
-
-    assert (
-        main(
-            [
-                "init",
-                "--root",
-                str(project),
-                "--session",
-                "invalid-count",
-                "--experiments",
-                "0",
-                "--no-launch",
-            ]
-        )
-        == 2
-    )
-    assert not (project / "polyloop.toml").exists()
 
 
 def test_failed_adoption_does_not_claim_existing_session(

@@ -28,18 +28,11 @@ class RoleConfig:
 
 
 @dataclass(frozen=True)
-class CampaignConfig:
-    campaign_id: str
-    max_experiments: int
-
-
-@dataclass(frozen=True)
 class ProjectConfig:
     root: Path
     session: str
     description: str
     notes_file: Path | None
-    campaign: CampaignConfig
     roles: dict[str, RoleConfig]
 
 
@@ -80,18 +73,6 @@ def load_config(root: Path) -> ProjectConfig:
     notes_file = (
         Path(os.path.expandvars(notes_value)).expanduser() if notes_value else None
     )
-
-    campaign_raw = raw.get("campaign")
-    if not isinstance(campaign_raw, dict):
-        raise ConfigError("polyloop.toml must contain a [campaign] table")
-    campaign_id = _required_string(campaign_raw, "id")
-    max_experiments = campaign_raw.get("max_experiments")
-    if (
-        not isinstance(max_experiments, int)
-        or isinstance(max_experiments, bool)
-        or max_experiments < 1
-    ):
-        raise ConfigError("campaign.max_experiments must be a positive integer")
 
     roles_raw = raw.get("roles")
     if not isinstance(roles_raw, dict):
@@ -137,9 +118,6 @@ def load_config(root: Path) -> ProjectConfig:
         session=session,
         description=description,
         notes_file=notes_file,
-        campaign=CampaignConfig(
-            campaign_id=campaign_id, max_experiments=max_experiments
-        ),
         roles=roles,
     )
 
@@ -149,16 +127,11 @@ def write_default_config(
     *,
     session: str,
     description: str,
-    campaign_id: str,
-    max_experiments: int,
     provider: str,
 ) -> Path:
     validate_session_name(session)
     if provider not in PROVIDERS:
         raise ConfigError(f"provider must be one of {', '.join(PROVIDERS)}")
-    if max_experiments < 1:
-        raise ConfigError("max experiments must be positive")
-
     notes_file = os.environ.get("POLYLOOP_NOTES_FILE", "~/.tmux-notes")
     effort_by_role = {
         "manager": "high",
@@ -174,10 +147,6 @@ def write_default_config(
         f"session = {_toml_string(session)}",
         f"description = {_toml_string(description)}",
         f"notes_file = {_toml_string(notes_file)}",
-        "",
-        "[campaign]",
-        f"id = {_toml_string(campaign_id)}",
-        f"max_experiments = {max_experiments}",
     ]
     for role in ROLES:
         lines.extend(

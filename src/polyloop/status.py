@@ -18,6 +18,17 @@ class StatusReport:
     healthy: bool
 
 
+@dataclass(frozen=True)
+class ExperimentObservation:
+    current_campaign_closed: int
+    total_closed: int
+    closed_ids: frozenset[str]
+    warnings: tuple[str, ...]
+
+
+TERMINAL_DECISIONS = {"promote", "reject", "inconclusive", "blocked"}
+
+
 def build_status_report(
     config: ProjectConfig, tmux: Tmux | None = None
 ) -> StatusReport:
@@ -28,9 +39,10 @@ def build_status_report(
     ]
     healthy = True
 
-    campaign_line, campaign_warning = _campaign_status(config)
+    campaign_line, experiment_line, campaign_warnings = _campaign_status(config)
     lines.append(f"Campaign:  {campaign_line}")
-    if campaign_warning:
+    lines.append(f"Experiments: {experiment_line}")
+    if campaign_warnings:
         healthy = False
 
     git_line, git_warning = _git_status(config)
@@ -99,8 +111,7 @@ def build_status_report(
     extra_windows = sorted(set(by_name) - set(ROLES))
     if extra_windows:
         warnings.append("extra tmux windows: " + ", ".join(extra_windows))
-    if campaign_warning:
-        warnings.append(campaign_warning)
+    warnings.extend(campaign_warnings)
     if git_warning:
         warnings.append(git_warning)
     if warnings:
@@ -110,42 +121,101 @@ def build_status_report(
     return StatusReport("\n".join(lines), healthy)
 
 
-def _campaign_status(config: ProjectConfig) -> tuple[str, str | None]:
+def _campaign_status(config: ProjectConfig) -> tuple[str, str, list[str]]:
     try:
         campaign = read_toml_frontmatter(config.root / "CAMPAIGN.md")
         experiment = read_toml_frontmatter(config.root / "CURRENT_EXPERIMENT.md")
     except FrontmatterError as exc:
-        return "invalid metadata", str(exc)
+        return "invalid metadata", "unknown", [str(exc)]
     if not campaign:
-        return "missing CAMPAIGN.md metadata", "CAMPAIGN.md has no TOML front matter"
+        return (
+            "missing CAMPAIGN.md metadata",
+            "unknown",
+            ["CAMPAIGN.md has no TOML front matter"],
+        )
     if not experiment:
         return (
             "missing CURRENT_EXPERIMENT.md metadata",
-            "CURRENT_EXPERIMENT.md has no TOML front matter",
+            "unknown",
+            ["CURRENT_EXPERIMENT.md has no TOML front matter"],
         )
-    campaign_id = str(campaign.get("id", config.campaign.campaign_id))
+    raw_campaign_id = str(campaign.get("id", "")).strip()
+    campaign_id = raw_campaign_id or "none"
     status = str(campaign.get("status", "unknown"))
-    completed = campaign.get("completed_experiments", "?")
-    maximum = campaign.get("max_experiments", config.campaign.max_experiments)
     experiment_id = str(experiment.get("experiment", "")).strip() or "none"
     stage = str(experiment.get("stage", "unknown"))
-    drift: list[str] = []
-    if campaign_id != config.campaign.campaign_id:
-        drift.append(
-            f"campaign id is {campaign_id} in CAMPAIGN.md and "
-            f"{config.campaign.campaign_id} in polyloop.toml"
+    warnings: list[str] = []
+    experiment_campaign = str(experiment.get("campaign", "")).strip()
+    if experiment_id != "none" and experiment_campaign != raw_campaign_id:
+        warnings.append(
+            f"active experiment {experiment_id} belongs to campaign "
+            f"{experiment_campaign or 'none'}, not {campaign_id}"
         )
-    if maximum != config.campaign.max_experiments:
-        drift.append(
-            f"experiment limit is {maximum} in CAMPAIGN.md and "
-            f"{config.campaign.max_experiments} in polyloop.toml"
+
+    observation = observe_experiments(config.root, raw_campaign_id)
+    warnings.extend(observation.warnings)
+    current_status = str(experiment.get("status", "")).strip().lower()
+    if (
+        experiment_id != "none"
+        and current_status == "closed"
+        and experiment_id not in observation.closed_ids
+    ):
+        warnings.append(
+            f"closed current experiment {experiment_id} has not been archived under experiments/"
         )
-    if isinstance(completed, int) and isinstance(maximum, int) and completed > maximum:
-        drift.append(f"completed experiment count {completed} exceeds limit {maximum}")
+
     return (
-        f"{campaign_id} {status}, {completed}/{maximum} complete, "
-        f"experiment={experiment_id}, stage={stage}",
-        "; ".join(drift) or None,
+        f"{campaign_id} {status}, active={experiment_id}, stage={stage}",
+        f"{observation.current_campaign_closed} closed in {campaign_id}, "
+        f"{observation.total_closed} closed across workspace",
+        warnings,
+    )
+
+
+def observe_experiments(root: Path, current_campaign: str) -> ExperimentObservation:
+    experiment_root = root / "experiments"
+    candidates = set(experiment_root.glob("*.md"))
+    candidates.update(experiment_root.glob("*/EXPERIMENT.md"))
+    closed: dict[str, str] = {}
+    warnings: list[str] = []
+
+    for path in sorted(candidates):
+        try:
+            metadata = read_toml_frontmatter(path)
+        except FrontmatterError as exc:
+            warnings.append(str(exc))
+            continue
+        experiment_id = str(metadata.get("experiment", metadata.get("id", ""))).strip()
+        if not experiment_id:
+            if path.name != "EXPERIMENT_TEMPLATE.md":
+                warnings.append(f"{path} has no experiment identifier")
+            continue
+        if experiment_id in closed:
+            warnings.append(f"duplicate closed experiment identifier {experiment_id}")
+            continue
+
+        campaign_id = str(metadata.get("campaign", "")).strip()
+        record_status = str(metadata.get("status", "")).strip().lower()
+        decision = str(metadata.get("decision", "")).strip().lower()
+        if record_status != "closed":
+            warnings.append(f"{path} is archived but status is not closed")
+            continue
+        if decision not in TERMINAL_DECISIONS:
+            warnings.append(f"{path} has no valid terminal decision")
+            continue
+        if not campaign_id:
+            warnings.append(f"{path} has no campaign identifier")
+            continue
+        closed[experiment_id] = campaign_id
+
+    current_count = sum(
+        1 for campaign_id in closed.values() if campaign_id == current_campaign
+    )
+    return ExperimentObservation(
+        current_campaign_closed=current_count,
+        total_closed=len(closed),
+        closed_ids=frozenset(closed),
+        warnings=tuple(warnings),
     )
 
 

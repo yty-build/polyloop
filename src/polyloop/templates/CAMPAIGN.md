@@ -1,43 +1,44 @@
 +++
-id = "$campaign_id"
-status = "draft"
-max_experiments = $max_experiments
-completed_experiments = 0
+id = ""
+status = "not_started"
 +++
 
-# Campaign $campaign_id
+# Current Campaign
 
-## Bounded Goal
+The strategy manager owns this campaign record. Polyloop does not create experiments, impose an experiment limit, advance stages, or decide when the campaign is complete.
 
-$objective
+## Campaign Objective
 
-Run no more than `$max_experiments` completed experiments. Execute one experiment at a time and close each experiment before selecting another.
+No campaign has been activated. Define a concrete research outcome that can be completed or stopped without requiring an indefinite loop.
 
-## Starting Point
+## Starting Evidence
 
-- Champion: `unverified baseline`
-- Baseline commit: `not recorded`
-- Evidence snapshot: `not recorded`
-- Campaign budget: `not recorded`
-- Paper-window requirement: `not recorded`
+- Champion and immutable commit: `not assigned`
+- Authoritative data snapshot: `not assigned`
+- Canonical evaluator: `not assigned`
+- Relevant market-level lessons: `not assigned`
 
-## Early Stop Conditions
+## Resource Boundary
 
-Stop and return control to the human owner when:
+- Time or usage budget: `not assigned`
+- Paper-observation requirement: `not assigned`
+- Operational constraints: `not assigned`
 
-- The campaign reaches `$max_experiments` completed experiments.
-- Required data, evaluator, credentials, or paper infrastructure is unavailable.
-- No materially new, falsifiable hypothesis remains.
-- A safety boundary or campaign budget would be exceeded.
-- Results cannot be reproduced or evidence integrity is uncertain.
+## Stop Conditions
+
+The strategy manager must stop and return control when the campaign objective is achieved, its resource boundary is reached, evidence is blocked or unsafe, or no materially new falsifiable hypothesis remains.
 
 ## Manager Goal Primer
 
-Use this as the basis for the manager's native `/goal`:
+Use this as the basis for the manager's native `/goal` after completing this record:
 
-> Run campaign $campaign_id for at most $max_experiments completed experiments under PROJECT_CHARTER.md. Execute one experiment at a time through hypothesis, build, canonical offline verification, paper evidence, decision, and retrospection. Commit every closed experiment. Stop when the experiment limit or any early stop condition is reached.
+> Run the current campaign under CAMPAIGN.md and PROJECT_CHARTER.md. Select, execute, and close one falsifiable experiment at a time. Continue only while another experiment is materially useful to the campaign objective and remains inside its resource and safety boundaries. Stop under the recorded campaign stop conditions and leave a closeout; do not silently begin another campaign.
 
-## Campaign Closeout
+## Campaign Learning
 
-At completion, record the final champion, experiments attempted, winners, rejected hypotheses, unresolved risks, budget used, and ranked candidates for the next bounded campaign.
+Summarize patterns that apply to this campaign. Promote a lesson to the market-level `LESSONS.md` only when its evidence justifies reuse beyond this campaign.
+
+## Closeout
+
+At completion, record the final champion, closed experiments, rejected mechanisms, unresolved risks, resource use, and ranked follow-ups. Preserve this record under `campaigns/<campaign-id>.md`, then reset `CAMPAIGN.md` before another campaign is activated.
 

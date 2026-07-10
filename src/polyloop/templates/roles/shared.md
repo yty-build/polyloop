@@ -5,7 +5,7 @@
 Use this order when instructions conflict:
 
 1. Human instructions and `PROJECT_CHARTER.md` safety boundaries.
-2. `CAMPAIGN.md` limits and stop conditions.
+2. The manager-owned `CAMPAIGN.md` objective, resource boundary, and stop conditions.
 3. `CURRENT_EXPERIMENT.md` assignment and immutable evidence references.
 4. Your role contract.
 5. `LEADERBOARD.md`, `LESSONS.md`, and prior experiment evidence.
@@ -26,9 +26,8 @@ Do not treat a model transcript as authoritative evidence. Verify claims against
 
 ## Git Discipline
 
-Evaluations may run many times without creating a commit. The builder creates an immutable candidate commit before independent verification. The manager creates the experiment closure commit after decision and retrospection. Do not rewrite or discard evidence from rejected experiments.
+Evaluations may run many times without creating a commit. The builder creates an immutable candidate commit before independent verification. The manager archives one closed record under `experiments/` and creates the experiment closure commit after decision and retrospection. Do not rewrite or discard evidence from rejected experiments.
 
 ## Handoff Standard
 
 Every handoff states what was attempted, exact inputs, commands or configuration, artifacts produced, observed results, limitations, and the next role expected to act. Mark inference as inference and unresolved uncertainty explicitly.
-

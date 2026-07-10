@@ -12,7 +12,7 @@ One strategy workspace maps to one user-named tmux session with six stable funct
 manager  council  builder  verifier  reality  retrospector
 ```
 
-Window names describe functions rather than providers. Each role defaults to Codex and can independently use Claude, Grok, or OpenCode through `polyloop.toml`. A campaign is bounded by a maximum experiment count and executes one experiment at a time.
+Window names describe functions rather than providers. Each role defaults to Codex and can independently use Claude, Grok, or OpenCode through `polyloop.toml`. The strategy manager owns campaigns and executes one experiment at a time; Polyloop does not create experiments or impose an experiment count.
 
 ## Requirements
 
@@ -43,8 +43,7 @@ polyloop init \
   --session btc5m-straddle \
   --description "BTC 5-minute straddle research" \
   --market "Polymarket BTC 5-minute market; exact resolution specification pending" \
-  --objective "Find robust paper-only challengers to the verified champion" \
-  --experiments 3
+  --objective "Find robust paper-only challengers to the verified champion"
 ```
 
 Polyloop creates project contracts, role prompts, a named tmux session, and one model process per role. It does not attach automatically:
@@ -64,7 +63,7 @@ Initialization is idempotent. Running `polyloop init` again repairs missing file
 polyloop status
 ```
 
-Status reports campaign progress, Git state, provider availability, role window state, process names, configuration drift, and the existing `tattach` command.
+Status reports the current manager-owned campaign, observed closed experiment records, market-wide experiment totals, Git state, provider availability, role window state, process names, configuration drift, and the existing `tattach` command.
 
 ## Configure Models
 
@@ -92,13 +91,13 @@ extra_args = []
 
 The files in `roles/` are the authoritative runtime contracts. On launch, Polyloop reads `roles/shared.md` and the function-specific role file and injects that content using the provider's supported context mechanism. The model is then told to read the current project and campaign files and wait for a finite assignment.
 
-Detailed assignments and handoffs belong in `CURRENT_EXPERIMENT.md`; tmux messages should only wake the relevant role. Completed experiment evidence belongs under `experiments/` and is preserved through Git.
+Detailed assignments and handoffs belong in `CURRENT_EXPERIMENT.md`; tmux messages should only wake the relevant role. When the manager closes an experiment, it archives the completed record as `experiments/E####.md` with `campaign`, `experiment`, `status = "closed"`, and a terminal `decision`. Polyloop derives counts from those immutable records; it never increments or enforces them.
 
 ## Campaign Goals
 
-`CAMPAIGN.md` contains a ready-to-use native manager goal for at most `N` experiments. Activate it manually in the manager window using the provider's native goal command. Worker assignments remain finite to one stage of one experiment.
+`CAMPAIGN.md` is owned by the strategy manager. It defines a finite research objective, starting evidence, resource boundary, and stop conditions. It deliberately contains no Polyloop-controlled experiment limit. Activate its goal manually in the manager window using the provider's native goal command. Worker assignments remain finite to one stage of one experiment.
 
-Pause and resume through tmux and the provider's native controls. A new campaign reads the committed charter, champion, leaderboard, lessons, and closed experiments rather than depending on transcript memory.
+Only one campaign is active in a strategy session at a time. At close, preserve its record under `campaigns/`; the next campaign reads the committed charter, champion, leaderboard, market-level lessons, campaign closeouts, and closed experiments rather than depending on transcript memory. Pause and resume through tmux and the provider's native controls.
 
 ## Parallel Strategies
 

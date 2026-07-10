@@ -36,8 +36,6 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("--description", default="")
     init_parser.add_argument("--market", default="")
     init_parser.add_argument("--objective", default="")
-    init_parser.add_argument("--campaign", default=None)
-    init_parser.add_argument("--experiments", type=int, default=None)
     init_parser.add_argument("--provider", choices=PROVIDERS, default=None)
     init_parser.add_argument(
         "--no-launch",
@@ -89,19 +87,13 @@ def _run_init(args: argparse.Namespace) -> int:
         initialized_git = ensure_git_repository(root)
     else:
         session = args.session or _prompt_session()
-        campaign_id = args.campaign or "C001"
-        max_experiments = args.experiments if args.experiments is not None else 3
         provider = args.provider or "codex"
         validate_session_name(session)
-        if max_experiments < 1:
-            raise ConfigError("max experiments must be positive")
         initialized_git = ensure_git_repository(root)
         write_default_config(
             root,
             session=session,
             description=args.description or session,
-            campaign_id=campaign_id,
-            max_experiments=max_experiments,
             provider=provider,
         )
         created_config = True
@@ -111,8 +103,6 @@ def _run_init(args: argparse.Namespace) -> int:
         root,
         session=config.session,
         description=config.description,
-        campaign_id=config.campaign.campaign_id,
-        max_experiments=config.campaign.max_experiments,
         market=args.market,
         objective=args.objective,
     )
@@ -174,17 +164,6 @@ def _validate_existing_options(config: ProjectConfig, args: argparse.Namespace) 
     if args.session and args.session != config.session:
         raise ConfigError(
             f"this workspace is configured for session {config.session!r}, not {args.session!r}"
-        )
-    if args.campaign and args.campaign != config.campaign.campaign_id:
-        raise ConfigError(
-            "edit polyloop.toml and CAMPAIGN.md to begin another campaign"
-        )
-    if (
-        args.experiments is not None
-        and args.experiments != config.campaign.max_experiments
-    ):
-        raise ConfigError(
-            "edit polyloop.toml and CAMPAIGN.md to change the campaign limit"
         )
     if args.provider and any(
         role.provider != args.provider for role in config.roles.values()

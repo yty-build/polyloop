@@ -1,13 +1,14 @@
 +++
-campaign = "$campaign_id"
+campaign = ""
 experiment = ""
 stage = "idle"
 status = "not_started"
+decision = ""
 +++
 
 # Current Experiment
 
-Only one experiment may be active in this strategy workspace.
+Only the strategy manager may activate an experiment. Polyloop observes experiment records but does not create, count, advance, or close them.
 
 ## Manager Assignment
 
@@ -40,9 +41,13 @@ No handoff yet.
 
 ## Decision
 
-No decision yet. Allowed decisions are `promote`, `reject`, `inconclusive`, or `blocked`.
+No decision yet. Allowed terminal decisions are `promote`, `reject`, `inconclusive`, or `blocked`.
 
 ## Retrospective
 
 No retrospective yet.
+
+## Closure
+
+After decision and retrospection, set `status = "closed"`, set `decision`, preserve the completed record as `experiments/<experiment-id>.md`, and reset this file. `polyloop status` derives observed counts only from those closed records.
 
