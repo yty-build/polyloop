@@ -99,4 +99,6 @@ def test_external_researcher_is_injected_only_into_council(
 
     assert "Function: external-researcher" in council
     assert "grok --yolo" in council
+    assert "Window target: research-test:external-researcher.0" in council
+    assert "Do not run the researcher command from this council process" in council
     assert "Function: external-researcher" not in manager

@@ -40,12 +40,12 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument(
         "--no-launch",
         action="store_true",
-        help="create role windows but leave their shells idle",
+        help="create managed windows but leave their shells idle",
     )
     init_parser.add_argument(
         "--restart",
         action="store_true",
-        help="restart every managed role pane using the current configuration",
+        help="restart every managed role and tool using the current configuration",
     )
     init_parser.add_argument(
         "--adopt",
@@ -130,12 +130,15 @@ def _run_init(args: argparse.Namespace) -> int:
         print("Added windows: " + ", ".join(result.created_windows))
     if result.launched_roles:
         print("Launched roles: " + ", ".join(result.launched_roles))
+    if result.launched_tools:
+        print("Launched tools: " + ", ".join(result.launched_tools))
+    if result.launched_roles or result.launched_tools:
         print(
             "First launch may require workspace trust; review and approve it with "
             f"tattach {config.session}. Polyloop never auto-approves trust prompts."
         )
     elif args.no_launch:
-        print("Role windows are idle (--no-launch).")
+        print("Managed windows are idle (--no-launch).")
     for warning in (*result.warnings, *((note_warning,) if note_warning else ())):
         print(f"Warning: {warning}")
     print(f"Attach: tattach {config.session}")

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .config import ProjectConfig
-from .constants import ROLES, SHELL_COMMANDS
+from .constants import EXTERNAL_RESEARCHER_WINDOW, ROLES, SHELL_COMMANDS
 from .frontmatter import FrontmatterError, read_toml_frontmatter
 from .providers import PROVIDER_EXECUTABLES
 from .tmux import Tmux, TmuxError, WindowState
@@ -107,8 +107,42 @@ def build_status_report(
             (role_name, role.provider, role.effort or "default", state, process)
         )
 
+    researcher = config.external_researcher
+    if researcher:
+        window = by_name.get(EXTERNAL_RESEARCHER_WINDOW)
+        state, process = _window_state(window)
+        installed = shutil.which(researcher.command[0]) is not None
+        if not installed:
+            state = "MISSING CLI"
+        elif window is None or window.dead:
+            healthy = False
+            warnings.append(f"{EXTERNAL_RESEARCHER_WINDOW} window is {state.lower()}")
+        if (
+            window
+            and window.provider_marker
+            and window.provider_marker != researcher.provider
+        ):
+            warnings.append(
+                f"{EXTERNAL_RESEARCHER_WINDOW} is marked "
+                f"{window.provider_marker}, configured {researcher.provider}"
+            )
+            state = "CONFIG DRIFT"
+            healthy = False
+        rows.append(
+            (
+                EXTERNAL_RESEARCHER_WINDOW,
+                researcher.provider,
+                "n/a",
+                state,
+                process,
+            )
+        )
+
     lines.extend(("", _format_table(rows)))
-    extra_windows = sorted(set(by_name) - set(ROLES))
+    expected_windows = set(ROLES)
+    if researcher:
+        expected_windows.add(EXTERNAL_RESEARCHER_WINDOW)
+    extra_windows = sorted(set(by_name) - expected_windows)
     if extra_windows:
         warnings.append("extra tmux windows: " + ", ".join(extra_windows))
     warnings.extend(campaign_warnings)
@@ -277,7 +311,7 @@ def _window_state(window: WindowState | None) -> tuple[str, str]:
 
 
 def _format_table(rows: list[tuple[str, str, str, str, str]]) -> str:
-    headers = ("ROLE", "PROVIDER", "EFFORT", "STATE", "PROCESS")
+    headers = ("FUNCTION", "PROVIDER", "EFFORT", "STATE", "PROCESS")
     all_rows = [headers, *rows]
     widths = [
         max(len(str(row[index])) for row in all_rows) for index in range(len(headers))

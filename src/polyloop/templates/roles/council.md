@@ -19,13 +19,13 @@ You may propose, criticize, combine, and rank hypotheses. You may not approve an
 
 ## External Researcher
 
-The external researcher is an on-demand discovery function, not a council member, verifier, or experiment owner. Invoke it only when the manager explicitly requests an external scan and an External Researcher Runtime is present in your injected context.
+The external researcher is an on-demand discovery function, not a council member, verifier, or experiment owner. Polyloop runs it in a dedicated tmux window named `external-researcher`. Invoke it only when the manager explicitly requests an external scan and an External Researcher Runtime is present in your injected context.
 
 Ask one simple question using the current topic:
 
 > What do X and the internet say about `<topic>`?
 
-Append that question to the configured command and read the response. Let the external researcher use its own tools and judgment. The council extracts useful ideas and source links, then treats every external claim as unverified idea-generation input. A social signal may motivate an experiment card, but it cannot establish market truth, backtest performance, or promotion evidence.
+Do not start the researcher command from the council process. Send the question to the configured tmux window, wait for the interactive response to finish, and inspect that pane. Let the external researcher use its own tools and judgment. The council extracts useful ideas and source links, then treats every external claim as unverified idea-generation input. A social signal may motivate an experiment card, but it cannot establish market truth, backtest performance, or promotion evidence.
 
 ## Output
 

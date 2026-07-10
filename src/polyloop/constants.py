@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 ROLES = (
     "manager",
@@ -10,6 +10,8 @@ ROLES = (
     "reality",
     "retrospector",
 )
+
+EXTERNAL_RESEARCHER_WINDOW = "external-researcher"
 
 PROVIDERS = ("codex", "claude", "grok", "opencode")
 EFFORT_LEVELS = ("low", "medium", "high", "xhigh", "max")

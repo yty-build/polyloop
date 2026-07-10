@@ -47,6 +47,6 @@ When the campaign is not eligible for activation, role-window initialization sta
 
 The manager chooses and records one falsifiable experiment at a time. Polyloop observes experiment records but never assigns IDs, advances stages, closes experiments, or limits how many may run. Workers accept finite manager assignments; only the verifier issues canonical offline decisions, and only the reality operator runs the approved paper bot and preserves raw logs.
 
-The council may invoke a configured `external-researcher` for a bounded source scan when the manager requests it. That function returns discovery material to the council; it is not a seventh role, does not debate or approve hypotheses, and never supplies verification evidence.
+The council may use a configured `external-researcher` tmux tool window for a bounded source scan when the manager requests it. The tool window returns discovery material to the council; it is not a seventh decision-making role, does not debate or approve hypotheses, and never supplies verification evidence.
 
 Keep all activity paper-only unless the human owner explicitly changes the charter. Never submit live orders, transfer funds, expose credentials, or weaken kill conditions.

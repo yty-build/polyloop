@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
 from .config import ProjectConfig
-from .constants import ROLES, SHELL_COMMANDS, __version__
+from .constants import EXTERNAL_RESEARCHER_WINDOW, ROLES, SHELL_COMMANDS, __version__
 from .providers import (
     build_launch_argv,
     build_launch_command,
@@ -38,6 +39,7 @@ class EnsureResult:
     created_session: bool
     created_windows: list[str]
     launched_roles: list[str]
+    launched_tools: list[str]
     warnings: list[str]
 
 
@@ -137,7 +139,7 @@ def ensure_tmux_session(
     if not tmux.available():
         raise TmuxError("tmux is not installed or not available")
 
-    result = EnsureResult(False, [], [], [])
+    result = EnsureResult(False, [], [], [], [])
     exists = tmux.session_exists(config.session)
     if exists:
         owner = tmux.get_session_option(config.session, "@polyloop_root")
@@ -170,9 +172,12 @@ def ensure_tmux_session(
             "duplicate tmux window names prevent safe role targeting: "
             + ", ".join(duplicate_names)
         )
+    managed_windows = set(ROLES)
+    if config.external_researcher:
+        managed_windows.add(EXTERNAL_RESEARCHER_WINDOW)
     for window in windows:
         if (
-            window.name in ROLES
+            window.name in managed_windows
             and window.role_marker
             and window.role_marker != window.name
         ):
@@ -256,6 +261,73 @@ def ensure_tmux_session(
         )
         tmux.set_window_option(target, "@polyloop_provider", role.provider)
         result.launched_roles.append(role_name)
+
+    researcher = config.external_researcher
+    if researcher:
+        target = f"{config.session}:{EXTERNAL_RESEARCHER_WINDOW}"
+        window = by_name.get(EXTERNAL_RESEARCHER_WINDOW)
+        if window is None:
+            tmux.run(
+                "new-window",
+                "-d",
+                "-t",
+                config.session,
+                "-n",
+                EXTERNAL_RESEARCHER_WINDOW,
+                "-c",
+                str(config.root),
+            )
+            result.created_windows.append(EXTERNAL_RESEARCHER_WINDOW)
+            window = next(
+                item
+                for item in tmux.list_windows(config.session)
+                if item.name == EXTERNAL_RESEARCHER_WINDOW
+            )
+        elif window.role_marker and window.role_marker != EXTERNAL_RESEARCHER_WINDOW:
+            raise TmuxError(
+                f"window {target} is marked for role {window.role_marker!r}; "
+                "refusing to reuse it"
+            )
+
+        tmux.set_window_option(target, "@polyloop_role", EXTERNAL_RESEARCHER_WINDOW)
+        tmux.set_window_option(target, "remain-on-exit", "on")
+
+        if launch:
+            executable = researcher.command[0]
+            if shutil.which(executable) is None:
+                result.warnings.append(
+                    f"{EXTERNAL_RESEARCHER_WINDOW}: executable {executable!r} "
+                    "is not installed"
+                )
+            else:
+                should_launch = (
+                    restart or window.dead or window.command in SHELL_COMMANDS
+                )
+                if not should_launch:
+                    if (
+                        window.provider_marker
+                        and window.provider_marker != researcher.provider
+                    ):
+                        result.warnings.append(
+                            f"{EXTERNAL_RESEARCHER_WINDOW}: running "
+                            f"{window.provider_marker}, configured for "
+                            f"{researcher.provider}; use polyloop init --restart "
+                            "to apply the change"
+                        )
+                else:
+                    tmux.run(
+                        "respawn-pane",
+                        "-k",
+                        "-t",
+                        target,
+                        "-c",
+                        str(config.root),
+                        build_launch_command(list(researcher.command)),
+                    )
+                    tmux.set_window_option(
+                        target, "@polyloop_provider", researcher.provider
+                    )
+                    result.launched_tools.append(EXTERNAL_RESEARCHER_WINDOW)
 
     tmux.run("select-window", "-t", f"{config.session}:manager")
     return result

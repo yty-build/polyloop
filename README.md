@@ -6,13 +6,13 @@ Polyloop is not a daemon, scheduler, trading engine, or replacement for native C
 
 ## Runtime Model
 
-One strategy workspace maps to one user-named tmux session with six stable function windows:
+One strategy workspace maps to one user-named tmux session with six stable role windows:
 
 ```text
 manager  council  builder  verifier  reality  retrospector
 ```
 
-Window names describe functions rather than providers. Each role defaults to Codex and can independently use Claude, Grok, or OpenCode through `polyloop.toml`. The strategy manager owns campaigns and executes one experiment at a time; Polyloop does not create experiments or impose an experiment count.
+Window names describe functions rather than providers. Each role defaults to Codex and can independently use Claude, Grok, or OpenCode through `polyloop.toml`. When external research is configured, Polyloop also creates an `external-researcher` tool window for its interactive CLI. The strategy manager owns campaigns and executes one experiment at a time; Polyloop does not create experiments or impose an experiment count.
 
 ## Requirements
 
@@ -55,7 +55,7 @@ tattach btc5m-straddle
 
 On first launch, a provider may ask you to trust the strategy directory. Review the generated files and approve that prompt in each waiting pane. Polyloop deliberately does not bypass or auto-accept provider trust checks.
 
-Initialization is idempotent. Running `polyloop init` again repairs missing files and windows without overwriting project content or restarting healthy panes. Use `--restart` only when model configuration changes. Use `--no-launch` to test tmux topology without starting model sessions.
+Initialization is idempotent. Running `polyloop init` again repairs missing files and windows without overwriting project content or restarting healthy panes. Use `--restart` only when model or tool configuration changes. Use `--no-launch` to test tmux topology without starting model or tool sessions.
 
 ## Inspect
 
@@ -91,7 +91,7 @@ Codex's workspace-write sandbox blocks the local tmux Unix socket unless network
 
 ## External Research
 
-External discovery is a council-owned callable function, not a seventh tmux role. Configure its current provider and command independently:
+External discovery is a council-owned tool, not a seventh decision-making role. Configure its current provider and command independently:
 
 ```toml
 [external_researcher]
@@ -99,7 +99,7 @@ provider = "grok"
 command = ["grok", "--yolo"]
 ```
 
-When the manager requests an external scan, the council appends one simple question such as `What do X and the internet say about BTC 5-minute market behavior?` and reads Grok's response. Grok chooses its own native tools. Social sources can generate experiment ideas, but every used source must be carried into the experiment record and independently tested by the canonical verifier. Replacing Grok later changes the provider and command, not the function or tmux topology.
+Polyloop launches that exact command in a dedicated `external-researcher` tmux window. When the manager requests an external scan, the council sends one simple question such as `What do X and the internet say about BTC 5-minute market behavior?` to that window and reads the visible response. The council never launches a nested Grok process. Grok chooses its own native tools. Social sources can generate experiment ideas, but every used source must be carried into the experiment record and independently tested by the canonical verifier. Replacing Grok later changes the provider and command, not the function name.
 
 ## Prompt Model
 

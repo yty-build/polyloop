@@ -4,6 +4,7 @@ import shlex
 import shutil
 
 from .config import ProjectConfig, RoleConfig
+from .constants import EXTERNAL_RESEARCHER_WINDOW
 
 
 PROVIDER_EXECUTABLES = {
@@ -100,13 +101,18 @@ def load_role_context(config: ProjectConfig, role_name: str) -> str:
     )
     researcher = config.external_researcher
     if role_name == "council" and researcher:
+        target = f"{config.session}:{EXTERNAL_RESEARCHER_WINDOW}.0"
         context += (
             "\n# External Researcher Runtime\n\n"
             "Function: external-researcher\n"
             f"Provider: {researcher.provider}\n"
-            f"Command prefix: {shlex.join(researcher.command)}\n\n"
-            "Append one simple question as the final command argument: "
-            "'What do X and the internet say about <topic>?' Read stdout as the response.\n"
+            f"Window target: {target}\n"
+            f"Command launched by Polyloop: {shlex.join(researcher.command)}\n\n"
+            "Do not run the researcher command from this council process. It is an "
+            "interactive CLI already running in the dedicated tmux window. Send only "
+            "the simple question 'What do X and the internet say about <topic>?' to "
+            "the window target with tmux send-keys, then inspect that same pane with "
+            "tmux capture-pane after the response finishes.\n"
         )
     return context
 
