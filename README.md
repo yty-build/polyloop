@@ -9,10 +9,12 @@ Polyloop is not a daemon, scheduler, trading engine, or replacement for native C
 One strategy workspace maps to one user-named tmux session with six stable role windows:
 
 ```text
-manager  council  builder  verifier  reality  retrospector
+manager  council  builder  verifier  reality                         retrospector
+                                   ├── reality-controller (main pane)
+                                   └── bot-integrator     (second pane)
 ```
 
-Window names describe functions rather than providers. Each role defaults to Codex and can independently use Claude, Grok, or OpenCode through `polyloop.toml`. When external research is configured, Polyloop also creates an `external-researcher` tool window for its interactive CLI. The strategy manager owns campaigns and executes one experiment at a time; Polyloop does not create experiments or impose an experiment count.
+Window names describe functions rather than providers. Each function defaults to Codex and can independently use Claude, Grok, or OpenCode through `polyloop.toml`. The `reality` window is always prebuilt with two panes: the controller is the deployer and paper-evidence checker, while the bot integrator converts only an offline-approved strategy into an immutable deployable artifact. When external research is configured, Polyloop also creates an `external-researcher` tool window for its interactive CLI. The strategy manager owns campaigns and executes one experiment at a time; Polyloop does not create experiments or impose an experiment count.
 
 ## Requirements
 
@@ -46,7 +48,7 @@ polyloop init \
   --objective "Find robust paper-only challengers to the verified champion"
 ```
 
-Polyloop creates project contracts, a repository-level `AGENTS.md`, role prompts, a named tmux session, and one model process per role. It does not attach automatically:
+Polyloop creates project contracts, a repository-level `AGENTS.md`, role prompts, a named tmux session, and one model process per function, including both Reality panes. It does not attach automatically:
 
 ```bash
 tls
@@ -63,7 +65,7 @@ Initialization is idempotent. Running `polyloop init` again repairs missing file
 polyloop status
 ```
 
-Status reports the current manager-owned campaign, unique recorded experiment IDs, market-wide experiment totals, Git state, provider availability, role window state, process names, configuration drift, and the existing `tattach` command.
+Status reports the current manager-owned campaign, unique recorded experiment IDs, market-wide experiment totals, Git state, provider availability, function pane state, process names, configuration drift, and the existing `tattach` command.
 
 ## Configure Models
 
@@ -80,6 +82,20 @@ extra_args = []
 [roles.council]
 provider = "claude"
 model = "opus"
+effort = "high"
+resume_session = ""
+extra_args = []
+
+[roles.reality]
+provider = "codex" # reality-controller pane
+model = ""
+effort = "medium"
+resume_session = ""
+extra_args = []
+
+[roles.bot-integrator]
+provider = "codex"
+model = ""
 effort = "high"
 resume_session = ""
 extra_args = []
@@ -100,6 +116,12 @@ command = ["grok", "--yolo"]
 ```
 
 Polyloop launches that exact command in a dedicated `external-researcher` tmux window. When the manager requests an external scan, the council sends one simple question such as `What do X and the internet say about BTC 5-minute market behavior?` to that window and reads the visible response. The council never launches a nested Grok process. Grok chooses its own native tools. Social sources can generate experiment ideas, but every used source must be carried into the experiment record and independently tested by the canonical verifier. Replacing Grok later changes the provider and command, not the function name.
+
+## Reality Gate
+
+The canonical verifier owns offline backtesting and sends only an immutable survivor into the Reality gate. The bot integrator reuses the approved strategy module, adds paper-bot adapters and deterministic strategy-to-bot parity tests, then creates a separate immutable bot commit. It cannot deploy or approve that work. The reality controller reviews the handoff, deploys the exact artifact to the approved remote paper host, operates the required real-market windows, preserves raw logs, and recommends the Reality result. It cannot modify bot code or rerun the canonical evaluator.
+
+Both panes are local control agents; heavy integration tests, builds, and paper services belong on the strategy's configured remote infrastructure. Polyloop does not store SSH keys or hard-code a server.
 
 ## Prompt Model
 
@@ -130,4 +152,4 @@ Polyloop refuses to claim a tmux session already owned by another workspace.
 
 ## Safety
 
-The generated charter and reality-operator contract are paper-only. Polyloop does not connect to Polymarket, AWS, exchanges, wallets, or trading APIs. Infrastructure access and paper-bot commands must be supplied explicitly by the strategy project, and live trading remains outside the generated scope.
+The generated charter and reality-controller contract are paper-only. Polyloop does not connect to Polymarket, AWS, exchanges, wallets, or trading APIs. Infrastructure access and paper-bot commands must be supplied explicitly by the strategy project, and live trading remains outside the generated scope.

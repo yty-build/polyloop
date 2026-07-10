@@ -35,6 +35,10 @@ No handoff yet.
 
 No handoff yet.
 
+## Bot Integration Handoff
+
+No handoff yet.
+
 ## Reality Handoff
 
 No handoff yet.

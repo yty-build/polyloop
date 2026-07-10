@@ -17,7 +17,7 @@ Before activating a campaign, record the exact market identifier, duration, reso
 A strategy can become champion only after both gates pass:
 
 1. Canonical offline verification against an immutable data snapshot and existing champion.
-2. Paper-only real-world observation for the campaign's required number of valid market windows.
+2. Paper-only real-world observation for the campaign's required number of valid market windows, using an immutable bot artifact with verified strategy-to-bot parity.
 
 Offline verification must include leakage checks, realistic execution assumptions, rule ablation, and parameter-neighborhood robustness when parameters are tuned. Paper results must preserve raw logs, configuration, timestamps, rejected windows, and run identifiers.
 
@@ -39,4 +39,3 @@ Record the current champion implementation, immutable commit, evaluator version,
 ## Outside Scope
 
 Live deployment, portfolio allocation, and automatic capital changes are outside the initial Polyloop campaign.
-

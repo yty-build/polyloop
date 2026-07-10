@@ -4,7 +4,12 @@ import shlex
 import shutil
 
 from .config import ProjectConfig, RoleConfig
-from .constants import EXTERNAL_RESEARCHER_WINDOW
+from .constants import (
+    BOT_INTEGRATOR_ROLE,
+    EXTERNAL_RESEARCHER_WINDOW,
+    FUNCTION_BY_ROLE,
+    REALITY_CONTROLLER_FUNCTION,
+)
 
 
 PROVIDER_EXECUTABLES = {
@@ -87,8 +92,14 @@ def build_launch_command(argv: list[str]) -> str:
     return "exec " + shlex.join(argv)
 
 
-def load_role_context(config: ProjectConfig, role_name: str) -> str:
+def load_role_context(
+    config: ProjectConfig,
+    role_name: str,
+    *,
+    pane_targets: dict[str, str] | None = None,
+) -> str:
     root = config.root
+    function_name = FUNCTION_BY_ROLE[role_name]
     shared_path = root / "roles" / "shared.md"
     role_path = root / "roles" / f"{role_name}.md"
     shared = shared_path.read_text(encoding="utf-8")
@@ -96,12 +107,12 @@ def load_role_context(config: ProjectConfig, role_name: str) -> str:
     context = (
         "# Polyloop Runtime Contract\n\n"
         f"Workspace: {root}\n"
-        f"Role: {role_name}\n\n"
+        f"Function: {function_name}\n\n"
         f"{shared.rstrip()}\n\n{role.rstrip()}\n"
     )
     researcher = config.external_researcher
     if role_name == "council" and researcher:
-        target = f"{config.session}:{EXTERNAL_RESEARCHER_WINDOW}.0"
+        target = f"{config.session}:{EXTERNAL_RESEARCHER_WINDOW}"
         context += (
             "\n# External Researcher Runtime\n\n"
             "Function: external-researcher\n"
@@ -114,6 +125,32 @@ def load_role_context(config: ProjectConfig, role_name: str) -> str:
             "the window target with tmux send-keys, then inspect that same pane with "
             "tmux capture-pane after the response finishes.\n"
         )
+    if role_name in {"reality", BOT_INTEGRATOR_ROLE} and pane_targets:
+        controller_target = pane_targets[REALITY_CONTROLLER_FUNCTION]
+        integrator_target = pane_targets[BOT_INTEGRATOR_ROLE]
+        context += (
+            "\n# Reality Team Runtime\n\n"
+            f"Reality controller pane: {controller_target}\n"
+            f"Bot integrator pane: {integrator_target}\n\n"
+            "For every cross-pane message, use two separate commands: first "
+            "`tmux send-keys -t <target> -l -- '<message>'`, then "
+            "`tmux send-keys -t <target> Enter`. Never combine the text and Enter "
+            "in one tmux command; that can leave the message typed but unsubmitted.\n\n"
+        )
+        if role_name == "reality":
+            context += (
+                "You own this two-pane team. After an offline pass, put the detailed "
+                "integration assignment in CURRENT_EXPERIMENT.md and send only a short "
+                "wake-up message to the bot integrator pane. Do not implement bot code. "
+                "Review its immutable handoff before any paper deployment.\n"
+            )
+        else:
+            context += (
+                "Accept assignments only from the reality controller for the current "
+                "offline-approved experiment. Record the detailed handoff in "
+                "CURRENT_EXPERIMENT.md and notify the controller pane when complete. "
+                "Do not deploy or operate the bot.\n"
+            )
     return context
 
 
@@ -145,9 +182,11 @@ def startup_prompt(role_name: str, provider: str = "codex") -> str:
             "report the blockers, leave the campaign unstarted, and wait. Never start a "
             "different campaign."
         )
+    function_name = FUNCTION_BY_ROLE[role_name]
     return (
         "Read AGENTS.md, PROJECT_CHARTER.md, CAMPAIGN.md, CURRENT_EXPERIMENT.md, "
-        "LEADERBOARD.md, and LESSONS.md. This is initialization only. "
-        f"Reply exactly 'READY: {role_name}' and wait for a finite manager assignment. "
+        f"LEADERBOARD.md, LESSONS.md, roles/shared.md, and roles/{role_name}.md. "
+        "This is initialization only. "
+        f"Reply exactly 'READY: {function_name}' and wait for a finite manager assignment. "
         "Do not modify files or begin work yet."
     )

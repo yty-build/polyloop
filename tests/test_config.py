@@ -30,11 +30,36 @@ def test_default_config_round_trip(
         "verifier",
         "reality",
         "retrospector",
+        "bot-integrator",
     }
     assert all(role.provider == "codex" for role in config.roles.values())
     assert config.external_researcher is not None
     assert config.external_researcher.provider == "grok"
     assert config.external_researcher.command == ("grok", "--yolo")
+
+
+def test_legacy_config_inherits_reality_settings_for_bot_integrator(
+    tmp_path: Path,
+) -> None:
+    path = write_default_config(
+        tmp_path,
+        session="legacy-reality",
+        description="legacy",
+        provider="codex",
+    )
+    content = path.read_text(encoding="utf-8")
+    start = content.index("\n[roles.bot-integrator]")
+    end = content.index("\n[roles.retrospector]", start)
+    path.write_text(content[:start] + content[end:], encoding="utf-8")
+
+    config = load_config(tmp_path)
+
+    assert config.roles["bot-integrator"].provider == "codex"
+    assert (
+        "sandbox_workspace_write.network_access=true"
+        in config.roles["bot-integrator"].extra_args
+    )
+    assert config.roles["bot-integrator"].resume_session == ""
 
 
 def test_external_researcher_must_have_a_command(tmp_path: Path) -> None:

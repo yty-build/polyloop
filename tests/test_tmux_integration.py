@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 import shutil
 import subprocess
@@ -20,6 +19,32 @@ pytestmark = pytest.mark.skipif(shutil.which("tmux") is None, reason="tmux is re
 def tmux_socket(monkeypatch: pytest.MonkeyPatch):
     socket = f"polyloop-test-{uuid.uuid4().hex}"
     monkeypatch.setenv("POLYLOOP_TMUX_SOCKET", socket)
+    subprocess.run(
+        [
+            "tmux",
+            "-L",
+            socket,
+            "-f",
+            "/dev/null",
+            "new-session",
+            "-d",
+            "-s",
+            "polyloop-test-bootstrap",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        ["tmux", "-L", socket, "set-option", "-g", "exit-empty", "off"],
+        check=True,
+    )
+    subprocess.run(
+        ["tmux", "-L", socket, "set-option", "-g", "default-shell", "/bin/sh"],
+        check=True,
+    )
+    subprocess.run(
+        ["tmux", "-L", socket, "kill-session", "-t", "polyloop-test-bootstrap"],
+        check=True,
+    )
     yield socket
     subprocess.run(
         ["tmux", "-L", socket, "kill-server"],
@@ -86,9 +111,27 @@ def test_init_is_idempotent_and_status_is_healthy(
         "retrospector",
         "external-researcher",
     ]
+    reality_panes = subprocess.run(
+        [
+            "tmux",
+            "-L",
+            tmux_socket,
+            "list-panes",
+            "-t",
+            "test-strategy:reality",
+            "-F",
+            "#{pane_index}|#{@polyloop_function}",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    assert reality_panes == ["0|reality-controller", "1|bot-integrator"]
     output = capsys.readouterr().out
     assert "Experiments: 0 recorded in none, 0 recorded across workspace" in output
     assert "Campaign:  none draft, auto-start=off" in output
+    assert "reality-controller" in output
+    assert "bot-integrator" in output
     assert "Attach: tattach test-strategy" in output
 
 
@@ -126,44 +169,10 @@ def test_external_researcher_launches_in_its_own_window(
                 "research-window",
                 "--description",
                 "Research window test",
-                "--no-launch",
             ]
         )
         == 0
     )
-
-    for role in (
-        "manager",
-        "council",
-        "builder",
-        "verifier",
-        "reality",
-        "retrospector",
-    ):
-        subprocess.run(
-            [
-                "tmux",
-                "-L",
-                tmux_socket,
-                "respawn-pane",
-                "-k",
-                "-t",
-                f"research-window:{role}",
-                "exec sleep 30",
-            ],
-            check=True,
-        )
-    config_path = project / "polyloop.toml"
-    config_text = config_path.read_text(encoding="utf-8")
-    config_path.write_text(
-        config_text.replace(
-            'command = ["grok", "--yolo"]',
-            "command = " + json.dumps([str(fake_grok), "--yolo"]),
-        ),
-        encoding="utf-8",
-    )
-
-    assert main(["init", "--root", str(project)]) == 0
 
     panes = subprocess.run(
         [
@@ -187,7 +196,64 @@ def test_external_researcher_launches_in_its_own_window(
             break
         time.sleep(0.01)
     assert researcher_args.read_text(encoding="utf-8").strip() == "--yolo"
-    assert "Launched tools: external-researcher" in capsys.readouterr().out
+    reality_panes = subprocess.run(
+        [
+            "tmux",
+            "-L",
+            tmux_socket,
+            "list-panes",
+            "-t",
+            "research-window:reality",
+            "-F",
+            "#{@polyloop_function}|#{@polyloop_provider}",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    assert reality_panes == [
+        "reality-controller|codex",
+        "bot-integrator|codex",
+    ]
+    pane_ids_before_restart = subprocess.run(
+        [
+            "tmux",
+            "-L",
+            tmux_socket,
+            "list-panes",
+            "-t",
+            "research-window:reality",
+            "-F",
+            "#{pane_id}",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+
+    assert main(["init", "--root", str(project), "--restart"]) == 0
+
+    pane_ids_after_restart = subprocess.run(
+        [
+            "tmux",
+            "-L",
+            tmux_socket,
+            "list-panes",
+            "-t",
+            "research-window:reality",
+            "-F",
+            "#{pane_id}",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    assert pane_ids_after_restart == pane_ids_before_restart
+    output = capsys.readouterr().out
+    assert "Launched roles:" in output
+    assert "reality-controller" in output
+    assert "bot-integrator" in output
+    assert "Launched tools: external-researcher" in output
 
 
 def test_session_cannot_be_claimed_by_two_workspaces(

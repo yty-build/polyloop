@@ -128,6 +128,8 @@ def _run_init(args: argparse.Namespace) -> int:
         print(f"Created: tmux session {config.session}")
     if result.created_windows:
         print("Added windows: " + ", ".join(result.created_windows))
+    if result.created_panes:
+        print("Added panes: " + ", ".join(result.created_panes))
     if result.launched_roles:
         print("Launched roles: " + ", ".join(result.launched_roles))
     if result.launched_tools:

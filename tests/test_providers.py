@@ -99,6 +99,34 @@ def test_external_researcher_is_injected_only_into_council(
 
     assert "Function: external-researcher" in council
     assert "grok --yolo" in council
-    assert "Window target: research-test:external-researcher.0" in council
+    assert "Window target: research-test:external-researcher" in council
     assert "Do not run the researcher command from this council process" in council
     assert "Function: external-researcher" not in manager
+
+
+def test_reality_team_receives_each_others_pane_targets(tmp_path: Path) -> None:
+    write_default_config(
+        tmp_path,
+        session="reality-test",
+        description="test",
+        provider="codex",
+    )
+    roles = tmp_path / "roles"
+    roles.mkdir()
+    (roles / "shared.md").write_text("SHARED\n", encoding="utf-8")
+    (roles / "reality.md").write_text("CONTROLLER\n", encoding="utf-8")
+    (roles / "bot-integrator.md").write_text("INTEGRATOR\n", encoding="utf-8")
+    config = load_config(tmp_path)
+    targets = {"reality-controller": "%10", "bot-integrator": "%11"}
+
+    controller = load_role_context(config, "reality", pane_targets=targets)
+    integrator = load_role_context(config, "bot-integrator", pane_targets=targets)
+
+    assert "Function: reality-controller" in controller
+    assert "Bot integrator pane: %11" in controller
+    assert "Never combine the text and Enter" in controller
+    assert "Do not implement bot code" in controller
+    assert "Function: bot-integrator" in integrator
+    assert "Reality controller pane: %10" in integrator
+    assert "Never combine the text and Enter" in integrator
+    assert "Do not deploy or operate the bot" in integrator

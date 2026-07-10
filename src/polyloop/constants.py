@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 ROLES = (
     "manager",
@@ -10,6 +10,23 @@ ROLES = (
     "reality",
     "retrospector",
 )
+
+BOT_INTEGRATOR_ROLE = "bot-integrator"
+ROLE_FUNCTIONS = (
+    "manager",
+    "council",
+    "builder",
+    "verifier",
+    "reality",
+    BOT_INTEGRATOR_ROLE,
+    "retrospector",
+)
+REALITY_CONTROLLER_FUNCTION = "reality-controller"
+FUNCTION_BY_ROLE = {
+    **{role: role for role in ROLES},
+    "reality": REALITY_CONTROLLER_FUNCTION,
+    BOT_INTEGRATOR_ROLE: BOT_INTEGRATOR_ROLE,
+}
 
 EXTERNAL_RESEARCHER_WINDOW = "external-researcher"
 

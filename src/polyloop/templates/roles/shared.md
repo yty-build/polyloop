@@ -26,7 +26,7 @@ Do not treat a model transcript as authoritative evidence. Verify claims against
 
 ## Git Discipline
 
-Evaluations may run many times without creating a commit. The builder creates an immutable candidate commit before independent verification. Before replacing the current experiment, the manager preserves its record under `experiments/` and commits the accumulated evidence. Do not rewrite or discard evidence from rejected, paused, or inconclusive experiments.
+Evaluations may run many times without creating a commit. The experiment builder creates an immutable strategy candidate before independent verification. After an offline pass, the bot integrator creates a separate immutable deployment commit before the reality controller checks or deploys it. Before replacing the current experiment, the manager preserves its record under `experiments/` and commits the accumulated evidence. Do not rewrite or discard evidence from rejected, paused, or inconclusive experiments.
 
 ## Handoff Standard
 

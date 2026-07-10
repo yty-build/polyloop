@@ -5,7 +5,7 @@ from importlib import resources
 from pathlib import Path
 from string import Template
 
-from .constants import ROLES
+from .constants import ROLE_FUNCTIONS
 
 
 class ScaffoldError(RuntimeError):
@@ -72,7 +72,7 @@ def create_project_files(
 
     roles_dir = root / "roles"
     roles_dir.mkdir(parents=True, exist_ok=True)
-    for role in ("shared", *ROLES):
+    for role in ("shared", *ROLE_FUNCTIONS):
         path = roles_dir / f"{role}.md"
         if _create_from_template(path, f"roles/{role}.md", substitutions):
             created.append(path)

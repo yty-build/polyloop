@@ -8,7 +8,15 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .config import ProjectConfig
-from .constants import EXTERNAL_RESEARCHER_WINDOW, ROLES, SHELL_COMMANDS, __version__
+from .constants import (
+    BOT_INTEGRATOR_ROLE,
+    EXTERNAL_RESEARCHER_WINDOW,
+    FUNCTION_BY_ROLE,
+    ROLE_FUNCTIONS,
+    ROLES,
+    SHELL_COMMANDS,
+    __version__,
+)
 from .providers import (
     build_launch_argv,
     build_launch_command,
@@ -34,10 +42,24 @@ class WindowState:
     provider_marker: str
 
 
+@dataclass(frozen=True)
+class PaneState:
+    pane_id: str
+    window_name: str
+    window_index: int
+    index: int
+    dead: bool
+    command: str
+    pid: int
+    function_marker: str
+    provider_marker: str
+
+
 @dataclass
 class EnsureResult:
     created_session: bool
     created_windows: list[str]
+    created_panes: list[str]
     launched_roles: list[str]
     launched_tools: list[str]
     warnings: list[str]
@@ -86,6 +108,9 @@ class Tmux:
     def set_window_option(self, target: str, option: str, value: str) -> None:
         self.run("set-window-option", "-q", "-t", target, option, value)
 
+    def set_pane_option(self, target: str, option: str, value: str) -> None:
+        self.run("set-option", "-p", "-q", "-t", target, option, value)
+
     def list_windows(self, session: str) -> list[WindowState]:
         format_string = "\t".join(
             (
@@ -120,6 +145,52 @@ class Tmux:
             )
         return windows
 
+    def list_panes(self, session: str) -> list[PaneState]:
+        format_string = "\t".join(
+            (
+                "#{pane_id}",
+                "#{window_name}",
+                "#{window_index}",
+                "#{pane_index}",
+                "#{pane_dead}",
+                "#{pane_current_command}",
+                "#{pane_pid}",
+                "#{@polyloop_function}",
+                "#{@polyloop_provider}",
+            )
+        )
+        result = self.run("list-panes", "-s", "-t", session, "-F", format_string)
+        panes: list[PaneState] = []
+        for line in result.stdout.splitlines():
+            parts = line.split("\t")
+            if len(parts) != 9:
+                continue
+            (
+                pane_id,
+                window_name,
+                window_index,
+                pane_index,
+                dead,
+                command,
+                pid,
+                function,
+                provider,
+            ) = parts
+            panes.append(
+                PaneState(
+                    pane_id=pane_id,
+                    window_name=window_name,
+                    window_index=int(window_index),
+                    index=int(pane_index),
+                    dead=dead == "1",
+                    command=command,
+                    pid=int(pid or 0),
+                    function_marker=function,
+                    provider_marker=provider,
+                )
+            )
+        return panes
+
     def set_environment(self, session: str, key: str, value: str) -> None:
         self.run("set-environment", "-t", session, key, value)
 
@@ -139,7 +210,7 @@ def ensure_tmux_session(
     if not tmux.available():
         raise TmuxError("tmux is not installed or not available")
 
-    result = EnsureResult(False, [], [], [], [])
+    result = EnsureResult(False, [], [], [], [], [])
     exists = tmux.session_exists(config.session)
     if exists:
         owner = tmux.get_session_option(config.session, "@polyloop_root")
@@ -196,6 +267,7 @@ def ensure_tmux_session(
         tmux.set_environment(config.session, "PATH", os.environ["PATH"])
 
     by_name = {window.name: window for window in windows}
+    role_panes: dict[str, PaneState] = {}
 
     for role_name in ROLES:
         target = f"{config.session}:{role_name}"
@@ -224,6 +296,68 @@ def ensure_tmux_session(
 
         tmux.set_window_option(target, "@polyloop_role", role_name)
         tmux.set_window_option(target, "remain-on-exit", "on")
+        pane = _claim_function_pane(
+            tmux,
+            _window_panes(tmux.list_panes(config.session), role_name),
+            FUNCTION_BY_ROLE[role_name],
+        )
+        role_panes[role_name] = pane
+
+    reality_pane = role_panes["reality"]
+    reality_panes = _window_panes(tmux.list_panes(config.session), "reality")
+    bot_integrator_pane = _find_function_pane(reality_panes, BOT_INTEGRATOR_ROLE)
+    if bot_integrator_pane is None:
+        unclaimed = [
+            pane
+            for pane in reality_panes
+            if not pane.function_marker and pane.pane_id != reality_pane.pane_id
+        ]
+        if unclaimed:
+            bot_integrator_pane = min(unclaimed, key=lambda pane: pane.index)
+        else:
+            existing_ids = {pane.pane_id for pane in reality_panes}
+            tmux.run(
+                "split-window",
+                "-d",
+                "-h",
+                "-t",
+                reality_pane.pane_id,
+                "-c",
+                str(config.root),
+            )
+            new_panes = [
+                pane
+                for pane in _window_panes(tmux.list_panes(config.session), "reality")
+                if pane.pane_id not in existing_ids
+            ]
+            if len(new_panes) != 1:
+                raise TmuxError(
+                    "could not identify the new bot-integrator pane in the reality window"
+                )
+            bot_integrator_pane = new_panes[0]
+            result.created_panes.append("reality:bot-integrator")
+            tmux.run(
+                "select-layout",
+                "-t",
+                f"{config.session}:reality",
+                "even-horizontal",
+            )
+        tmux.set_pane_option(
+            bot_integrator_pane.pane_id,
+            "@polyloop_function",
+            BOT_INTEGRATOR_ROLE,
+        )
+    role_panes[BOT_INTEGRATOR_ROLE] = bot_integrator_pane
+    tmux.run("select-pane", "-t", reality_pane.pane_id)
+
+    pane_targets = {
+        FUNCTION_BY_ROLE[role_name]: pane.pane_id
+        for role_name, pane in role_panes.items()
+    }
+
+    for role_name in ROLE_FUNCTIONS:
+        pane = role_panes[role_name]
+        function_name = FUNCTION_BY_ROLE[role_name]
 
         if not launch:
             continue
@@ -234,16 +368,17 @@ def ensure_tmux_session(
             )
             continue
 
-        should_launch = restart or window.dead or window.command in SHELL_COMMANDS
+        should_launch = restart or pane.dead or pane.command in SHELL_COMMANDS
         if not should_launch:
-            if window.provider_marker and window.provider_marker != role.provider:
+            if pane.provider_marker and pane.provider_marker != role.provider:
                 result.warnings.append(
-                    f"{role_name}: running {window.provider_marker}, configured for {role.provider}; "
+                    f"{function_name}: running {pane.provider_marker}, configured for "
+                    f"{role.provider}; "
                     "use polyloop init --restart to apply the change"
                 )
             continue
 
-        context = load_role_context(config, role_name)
+        context = load_role_context(config, role_name, pane_targets=pane_targets)
         argv = build_launch_argv(
             config,
             role,
@@ -254,13 +389,19 @@ def ensure_tmux_session(
             "respawn-pane",
             "-k",
             "-t",
-            target,
+            pane.pane_id,
             "-c",
             str(config.root),
             build_launch_command(argv),
         )
-        tmux.set_window_option(target, "@polyloop_provider", role.provider)
-        result.launched_roles.append(role_name)
+        tmux.set_pane_option(pane.pane_id, "@polyloop_provider", role.provider)
+        if role_name in ROLES:
+            tmux.set_window_option(
+                f"{config.session}:{role_name}",
+                "@polyloop_provider",
+                role.provider,
+            )
+        result.launched_roles.append(function_name)
 
     researcher = config.external_researcher
     if researcher:
@@ -353,6 +494,36 @@ def upsert_tmux_note(path: Path | None, session: str, description: str) -> str |
     except OSError as exc:
         return f"could not update {path}: {exc}"
     return None
+
+
+def _window_panes(panes: list[PaneState], window_name: str) -> list[PaneState]:
+    return sorted(
+        (pane for pane in panes if pane.window_name == window_name),
+        key=lambda pane: pane.index,
+    )
+
+
+def _find_function_pane(panes: list[PaneState], function_name: str) -> PaneState | None:
+    matches = [pane for pane in panes if pane.function_marker == function_name]
+    if len(matches) > 1:
+        raise TmuxError(f"multiple panes are marked for function {function_name!r}")
+    return matches[0] if matches else None
+
+
+def _claim_function_pane(
+    tmux: Tmux, panes: list[PaneState], function_name: str
+) -> PaneState:
+    existing = _find_function_pane(panes, function_name)
+    if existing:
+        return existing
+    candidates = [pane for pane in panes if not pane.function_marker]
+    if not candidates:
+        raise TmuxError(
+            f"no unclaimed pane is available for function {function_name!r}"
+        )
+    pane = min(candidates, key=lambda candidate: candidate.index)
+    tmux.set_pane_option(pane.pane_id, "@polyloop_function", function_name)
+    return pane
 
 
 def _duplicate_window_names(windows: list[WindowState]) -> list[str]:

@@ -21,6 +21,10 @@ Record the candidate commit, configuration, changed files, tests, and reproducti
 
 Record canonical evaluator inputs, outputs, champion comparison, leakage checks, ablations, parameter-neighborhood checks, and limitations.
 
+## Bot Integration
+
+Record the offline-approved strategy commit, immutable bot commit, adapter changes, strategy-to-bot parity evidence, smoke tests, deployment manifest, and unresolved translation risks. State when the candidate failed before this gate.
+
 ## Paper Evidence
 
 Record paper run identifiers, valid and excluded market windows, raw log references, observed execution drift, and integrity checks. State when the candidate failed before this gate.

@@ -17,7 +17,7 @@ You may define and finish campaigns with the human owner's constraints; approve 
 5. Wake the builder with a short tmux message that points to the assignment.
 6. Require an immutable candidate commit before waking the verifier.
 7. Review canonical offline verification, including leakage, ablation, and robustness evidence.
-8. Send only offline survivors to the paper-only reality gate.
+8. Send only offline survivors to the paper-only reality controller. Require an immutable bot-integration commit and parity decision before deployment.
 9. Record the outcome and run retrospection. Preserve the experiment as `experiments/<experiment-id>.md`, update durable learning, and create the evidence commit.
 10. Choose another experiment only when it is materially useful to the campaign objective. Otherwise close the campaign under its recorded stop conditions.
 

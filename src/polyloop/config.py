@@ -7,7 +7,7 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
-from .constants import EFFORT_LEVELS, PROVIDERS, ROLES
+from .constants import BOT_INTEGRATOR_ROLE, EFFORT_LEVELS, PROVIDERS, ROLE_FUNCTIONS
 
 
 class ConfigError(ValueError):
@@ -88,8 +88,12 @@ def load_config(root: Path) -> ProjectConfig:
         raise ConfigError("polyloop.toml must contain [roles.*] tables")
 
     roles: dict[str, RoleConfig] = {}
-    for role_name in ROLES:
+    for role_name in ROLE_FUNCTIONS:
         role_raw = roles_raw.get(role_name)
+        inherited = False
+        if role_name == BOT_INTEGRATOR_ROLE and role_raw is None:
+            role_raw = roles_raw.get("reality")
+            inherited = True
         if not isinstance(role_raw, dict):
             raise ConfigError(f"missing [roles.{role_name}] table")
         provider = _required_string(role_raw, "provider")
@@ -114,11 +118,13 @@ def load_config(root: Path) -> ProjectConfig:
             provider=provider,
             model=str(role_raw.get("model", "")).strip(),
             effort=effort,
-            resume_session=str(role_raw.get("resume_session", "")).strip(),
+            resume_session=(
+                "" if inherited else str(role_raw.get("resume_session", "")).strip()
+            ),
             extra_args=tuple(extra_args_raw),
         )
 
-    unknown_roles = sorted(set(roles_raw) - set(ROLES))
+    unknown_roles = sorted(set(roles_raw) - set(ROLE_FUNCTIONS))
     if unknown_roles:
         raise ConfigError(f"unknown role tables: {', '.join(unknown_roles)}")
 
@@ -148,8 +154,9 @@ def write_default_config(
         "council": "high",
         "builder": "high",
         "verifier": "high",
-        "reality": "medium",
+        "reality": "high",
         "retrospector": "high",
+        BOT_INTEGRATOR_ROLE: "high",
     }
 
     lines = [
@@ -162,7 +169,18 @@ def write_default_config(
         'provider = "grok"',
         "command = " + json.dumps(["grok", "--yolo"]),
     ]
-    for role in ROLES:
+    tmux_roles = {"manager", "council", "reality", BOT_INTEGRATOR_ROLE}
+    for role in ROLE_FUNCTIONS:
+        extra_args = (
+            [
+                "--sandbox",
+                "workspace-write",
+                "--config",
+                "sandbox_workspace_write.network_access=true",
+            ]
+            if provider == "codex" and role in tmux_roles
+            else []
+        )
         lines.extend(
             [
                 "",
@@ -171,7 +189,7 @@ def write_default_config(
                 'model = ""',
                 f"effort = {_toml_string(effort_by_role[role])}",
                 'resume_session = ""',
-                "extra_args = []",
+                "extra_args = " + json.dumps(extra_args),
             ]
         )
 

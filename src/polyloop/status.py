@@ -6,10 +6,17 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .config import ProjectConfig
-from .constants import EXTERNAL_RESEARCHER_WINDOW, ROLES, SHELL_COMMANDS
+from .constants import (
+    BOT_INTEGRATOR_ROLE,
+    EXTERNAL_RESEARCHER_WINDOW,
+    FUNCTION_BY_ROLE,
+    ROLE_FUNCTIONS,
+    ROLES,
+    SHELL_COMMANDS,
+)
 from .frontmatter import FrontmatterError, read_toml_frontmatter
 from .providers import PROVIDER_EXECUTABLES
-from .tmux import Tmux, TmuxError, WindowState
+from .tmux import PaneState, Tmux, TmuxError, WindowState
 
 
 @dataclass(frozen=True)
@@ -75,6 +82,7 @@ def build_status_report(
 
     try:
         windows = tmux.list_windows(config.session)
+        panes = tmux.list_panes(config.session)
     except TmuxError as exc:
         lines.extend(("", f"Could not inspect windows: {exc}"))
         return StatusReport("\n".join(lines), False)
@@ -82,29 +90,51 @@ def build_status_report(
 
     rows: list[tuple[str, str, str, str, str]] = []
     warnings: list[str] = []
-    for role_name in ROLES:
+    panes_by_function: dict[str, PaneState] = {}
+    for pane in panes:
+        if not pane.function_marker:
+            continue
+        if pane.function_marker in panes_by_function:
+            warnings.append(f"multiple panes are marked {pane.function_marker}")
+            healthy = False
+            continue
+        panes_by_function[pane.function_marker] = pane
+
+    for role_name in ROLE_FUNCTIONS:
+        function_name = FUNCTION_BY_ROLE[role_name]
         role = config.roles[role_name]
         executable = PROVIDER_EXECUTABLES[role.provider]
         installed = shutil.which(executable) is not None
-        window = by_name.get(role_name)
-        state, process = _window_state(window)
+        pane = panes_by_function.get(function_name)
+        state, process = _pane_state(pane)
         if not installed:
             state = "MISSING CLI"
             healthy = False
-        if window is None or window.dead:
+        if pane is None or pane.dead:
             healthy = False
-        if (
-            window
-            and window.provider_marker
-            and window.provider_marker != role.provider
-        ):
+        expected_window = "reality" if role_name == BOT_INTEGRATOR_ROLE else role_name
+        if pane and pane.window_name != expected_window:
             warnings.append(
-                f"{role_name} is marked {window.provider_marker}, configured {role.provider}"
+                f"{function_name} is in window {pane.window_name}, expected "
+                f"{expected_window}"
+            )
+            state = "CONFIG DRIFT"
+            healthy = False
+        if pane and pane.provider_marker and pane.provider_marker != role.provider:
+            warnings.append(
+                f"{function_name} is marked {pane.provider_marker}, configured "
+                f"{role.provider}"
             )
             state = "CONFIG DRIFT"
             healthy = False
         rows.append(
-            (role_name, role.provider, role.effort or "default", state, process)
+            (
+                function_name,
+                role.provider,
+                role.effort or "default",
+                state,
+                process,
+            )
         )
 
     researcher = config.external_researcher
@@ -145,6 +175,13 @@ def build_status_report(
     extra_windows = sorted(set(by_name) - expected_windows)
     if extra_windows:
         warnings.append("extra tmux windows: " + ", ".join(extra_windows))
+    unclaimed_panes = [
+        f"{pane.window_name}.{pane.index}"
+        for pane in panes
+        if pane.window_name in ROLES and not pane.function_marker
+    ]
+    if unclaimed_panes:
+        warnings.append("unclaimed managed panes: " + ", ".join(unclaimed_panes))
     warnings.extend(campaign_warnings)
     if researcher_warning:
         warnings.append(researcher_warning)
@@ -308,6 +345,16 @@ def _window_state(window: WindowState | None) -> tuple[str, str]:
     if window.command in SHELL_COMMANDS:
         return "IDLE", window.command
     return "RUNNING", window.command or "unknown"
+
+
+def _pane_state(pane: PaneState | None) -> tuple[str, str]:
+    if pane is None:
+        return "MISSING", "-"
+    if pane.dead:
+        return "DEAD", pane.command or "-"
+    if pane.command in SHELL_COMMANDS:
+        return "IDLE", pane.command
+    return "RUNNING", pane.command or "unknown"
 
 
 def _format_table(rows: list[tuple[str, str, str, str, str]]) -> str:

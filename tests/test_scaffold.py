@@ -18,7 +18,7 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
 
     second = create_project_files(tmp_path, **arguments)
 
-    assert len(first) == 16
+    assert len(first) == 17
     assert second == []
     assert charter.read_text(encoding="utf-8") == "human-owned charter\n"
     assert "directly create the provider-native finite goal" in (
@@ -29,6 +29,10 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
     assert "auto_start = false" in campaign
     assert (tmp_path / "experiments" / "EXPERIMENT_TEMPLATE.md").is_file()
     assert (tmp_path / "campaigns" / ".gitkeep").is_file()
+    assert (tmp_path / "roles" / "bot-integrator.md").is_file()
+    assert "Bot Integration Handoff" in (tmp_path / "CURRENT_EXPERIMENT.md").read_text(
+        encoding="utf-8"
+    )
 
 
 def test_nested_strategy_requires_separate_git_worktree(tmp_path: Path) -> None:
