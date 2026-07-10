@@ -99,14 +99,14 @@ def load_role_context(config: ProjectConfig, role_name: str) -> str:
         f"{shared.rstrip()}\n\n{role.rstrip()}\n"
     )
     researcher = config.external_researcher
-    if role_name == "council" and researcher and researcher.enabled:
+    if role_name == "council" and researcher:
         context += (
             "\n# External Researcher Runtime\n\n"
             "Function: external-researcher\n"
             f"Provider: {researcher.provider}\n"
             f"Command prefix: {shlex.join(researcher.command)}\n\n"
-            "Append exactly one bounded research brief as the final command argument. "
-            "Capture and parse stdout as the response. Do not start a persistent process.\n"
+            "Append one simple question as the final command argument: "
+            "'What do X and the internet say about <topic>?' Read stdout as the response.\n"
         )
     return context
 

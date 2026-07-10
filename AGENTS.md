@@ -24,7 +24,7 @@ When the user asks this Codex session to create or start a strategy:
 5. Only after the seed is complete, set `status = "ready"` and `auto_start = true`.
 6. Run `polyloop status --root <target>` and resolve material warnings.
 7. Ensure the manager provider can reach the local tmux socket without disabling its filesystem sandbox. For current Codex CLI versions, set the manager's `extra_args` to `["--sandbox", "workspace-write", "--config", "sandbox_workspace_write.network_access=true"]` when the owner accepts network access. Do not use full-access or sandbox-bypass flags. Other roles should receive only the permissions their function needs.
-8. When external discovery is requested and Grok is installed, enable `[external_researcher]`. Keep the function name provider-neutral. When the provider uses `--yolo`, run it outside the strategy workspace, deny shell, edit, and generic integration tools, and require research-only structured output.
+8. When external discovery is requested, configure `[external_researcher]` with the chosen provider command. Keep the function name provider-neutral and let that provider use its own native tools.
 9. Run `polyloop init --root <target>` to launch idle role windows. The manager launch prompt will validate the seed and directly create its native finite goal. Do not automate a literal `/goal` by injecting keystrokes into tmux.
 
 For an existing running session, do not use `--restart` until you have verified that replacing every role process will not interrupt active work. A paused campaign remains paused until the human owner explicitly resumes it.

@@ -29,7 +29,6 @@ class RoleConfig:
 
 @dataclass(frozen=True)
 class ExternalResearcherConfig:
-    enabled: bool
     provider: str
     command: tuple[str, ...]
 
@@ -160,27 +159,8 @@ def write_default_config(
         f"notes_file = {_toml_string(notes_file)}",
         "",
         "[external_researcher]",
-        "enabled = false",
         'provider = "grok"',
-        "command = "
-        + json.dumps(
-            [
-                "grok",
-                "--yolo",
-                "--cwd",
-                "/tmp",
-                "--no-plan",
-                "--no-memory",
-                "--no-subagents",
-                "--max-turns",
-                "12",
-                "--disallowed-tools",
-                "run_terminal_cmd,search_replace,use_tool",
-                "--output-format",
-                "plain",
-                "--single",
-            ]
-        ),
+        "command = " + json.dumps(["grok", "--yolo"]),
     ]
     for role in ROLES:
         lines.extend(
@@ -215,9 +195,6 @@ def _load_external_researcher(
         return None
     if not isinstance(researcher_raw, dict):
         raise ConfigError("external_researcher must be a TOML table")
-    enabled = researcher_raw.get("enabled", False)
-    if not isinstance(enabled, bool):
-        raise ConfigError("external_researcher.enabled must be a boolean")
     provider = _required_string(researcher_raw, "provider")
     command_raw = researcher_raw.get("command")
     if (
@@ -229,7 +206,6 @@ def _load_external_researcher(
             "external_researcher.command must be a non-empty array of strings"
         )
     return ExternalResearcherConfig(
-        enabled=enabled,
         provider=provider,
         command=tuple(command_raw),
     )

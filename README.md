@@ -95,12 +95,11 @@ External discovery is a council-owned callable function, not a seventh tmux role
 
 ```toml
 [external_researcher]
-enabled = true
 provider = "grok"
-command = ["grok", "--yolo", "--cwd", "/tmp", "--no-plan", "--no-memory", "--no-subagents", "--max-turns", "12", "--disallowed-tools", "run_terminal_cmd,search_replace,use_tool", "--output-format", "plain", "--single"]
+command = ["grok", "--yolo"]
 ```
 
-The council appends one bounded research brief, asks for structured JSON, and captures stdout separately from provider diagnostics on stderr. The Grok command runs from `/tmp` and uses auto-approval while explicitly disabling terminal execution, repository editing, and the generic integration bridge that can expose inherited MCP tools. Social sources can generate experiment ideas, but every used source must be carried into the experiment record and independently tested by the canonical verifier. Replacing Grok later changes the provider and command, not the function or tmux topology.
+When the manager requests an external scan, the council appends one simple question such as `What do X and the internet say about BTC 5-minute market behavior?` and reads Grok's response. Grok chooses its own native tools. Social sources can generate experiment ideas, but every used source must be carried into the experiment record and independently tested by the canonical verifier. Replacing Grok later changes the provider and command, not the function or tmux topology.
 
 ## Prompt Model
 

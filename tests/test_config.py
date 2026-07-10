@@ -33,13 +33,8 @@ def test_default_config_round_trip(
     }
     assert all(role.provider == "codex" for role in config.roles.values())
     assert config.external_researcher is not None
-    assert config.external_researcher.enabled is False
     assert config.external_researcher.provider == "grok"
-    assert config.external_researcher.command[:2] == ("grok", "--yolo")
-    assert ("--cwd", "/tmp") == config.external_researcher.command[2:4]
-    assert "run_terminal_cmd,search_replace,use_tool" in (
-        config.external_researcher.command
-    )
+    assert config.external_researcher.command == ("grok", "--yolo")
 
 
 def test_external_researcher_must_have_a_command(tmp_path: Path) -> None:

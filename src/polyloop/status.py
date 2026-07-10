@@ -131,8 +131,6 @@ def _external_researcher_status(
     researcher = config.external_researcher
     if researcher is None:
         return "not configured", None
-    if not researcher.enabled:
-        return f"{researcher.provider} disabled", None
     executable = researcher.command[0]
     if shutil.which(executable) is None:
         return (

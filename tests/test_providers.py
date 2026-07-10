@@ -57,7 +57,9 @@ def test_grok_uses_rules_and_working_directory(tmp_path: Path) -> None:
     assert argv[argv.index("--rules") + 1] == "VERIFY CONTRACT"
 
 
-def test_codex_manager_can_activate_a_ready_campaign_without_typed_slash_command() -> None:
+def test_codex_manager_can_activate_a_ready_campaign_without_typed_slash_command() -> (
+    None
+):
     prompt = startup_prompt("manager", "codex")
 
     assert "auto_start = true" in prompt
@@ -76,7 +78,7 @@ def test_worker_still_waits_for_a_finite_manager_assignment() -> None:
     assert "auto_start" not in prompt
 
 
-def test_enabled_external_researcher_is_injected_only_into_council(
+def test_external_researcher_is_injected_only_into_council(
     tmp_path: Path,
 ) -> None:
     write_default_config(
@@ -84,14 +86,6 @@ def test_enabled_external_researcher_is_injected_only_into_council(
         session="research-test",
         description="test",
         provider="codex",
-    )
-    config_path = tmp_path / "polyloop.toml"
-    config_path.write_text(
-        config_path.read_text(encoding="utf-8").replace(
-            "[external_researcher]\nenabled = false",
-            "[external_researcher]\nenabled = true",
-        ),
-        encoding="utf-8",
     )
     roles = tmp_path / "roles"
     roles.mkdir()
