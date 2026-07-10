@@ -63,7 +63,7 @@ Initialization is idempotent. Running `polyloop init` again repairs missing file
 polyloop status
 ```
 
-Status reports the current manager-owned campaign, observed closed experiment records, market-wide experiment totals, Git state, provider availability, role window state, process names, configuration drift, and the existing `tattach` command.
+Status reports the current manager-owned campaign, unique recorded experiment IDs, market-wide experiment totals, Git state, provider availability, role window state, process names, configuration drift, and the existing `tattach` command.
 
 ## Configure Models
 
@@ -91,13 +91,13 @@ extra_args = []
 
 The files in `roles/` are the authoritative runtime contracts. On launch, Polyloop reads `roles/shared.md` and the function-specific role file and injects that content using the provider's supported context mechanism. The model is then told to read the current project and campaign files and wait for a finite assignment.
 
-Detailed assignments and handoffs belong in `CURRENT_EXPERIMENT.md`; tmux messages should only wake the relevant role. When the manager closes an experiment, it archives the completed record as `experiments/E####.md` with `campaign`, `experiment`, `status = "closed"`, and a terminal `decision`. Polyloop derives counts from those immutable records; it never increments or enforces them.
+Detailed assignments and handoffs belong in `CURRENT_EXPERIMENT.md`; tmux messages should only wake the relevant role. Before the manager replaces the current experiment, it preserves that experiment as `experiments/E####.md`. Polyloop counts unique experiment IDs from the current record and historical records regardless of status or decision; it never increments, limits, or controls them.
 
 ## Campaign Goals
 
 `CAMPAIGN.md` is owned by the strategy manager. It defines a finite research objective, starting evidence, resource boundary, and stop conditions. It deliberately contains no Polyloop-controlled experiment limit. Activate its goal manually in the manager window using the provider's native goal command. Worker assignments remain finite to one stage of one experiment.
 
-Only one campaign is active in a strategy session at a time. At close, preserve its record under `campaigns/`; the next campaign reads the committed charter, champion, leaderboard, market-level lessons, campaign closeouts, and closed experiments rather than depending on transcript memory. Pause and resume through tmux and the provider's native controls.
+Only one campaign is active in a strategy session at a time. At close, preserve its record under `campaigns/`; the next campaign reads the committed charter, champion, leaderboard, market-level lessons, campaign closeouts, and recorded experiments rather than depending on transcript memory. Pause and resume through tmux and the provider's native controls.
 
 ## Parallel Strategies
 

@@ -32,7 +32,7 @@ The strategy manager must stop and return control when the campaign objective is
 
 Use this as the basis for the manager's native `/goal` after completing this record:
 
-> Run the current campaign under CAMPAIGN.md and PROJECT_CHARTER.md. Select, execute, and close one falsifiable experiment at a time. Continue only while another experiment is materially useful to the campaign objective and remains inside its resource and safety boundaries. Stop under the recorded campaign stop conditions and leave a closeout; do not silently begin another campaign.
+> Run the current campaign under CAMPAIGN.md and PROJECT_CHARTER.md. Select and execute one falsifiable experiment at a time. Continue only while another experiment is materially useful to the campaign objective and remains inside its resource and safety boundaries. Stop under the recorded campaign stop conditions and leave a closeout; do not silently begin another campaign.
 
 ## Campaign Learning
 
@@ -40,5 +40,4 @@ Summarize patterns that apply to this campaign. Promote a lesson to the market-l
 
 ## Closeout
 
-At completion, record the final champion, closed experiments, rejected mechanisms, unresolved risks, resource use, and ranked follow-ups. Preserve this record under `campaigns/<campaign-id>.md`, then reset `CAMPAIGN.md` before another campaign is activated.
-
+At completion, record the final champion, experiments run, rejected mechanisms, unresolved risks, resource use, and ranked follow-ups. Preserve this record under `campaigns/<campaign-id>.md`, then reset `CAMPAIGN.md` before another campaign is activated.

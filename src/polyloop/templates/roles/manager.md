@@ -6,7 +6,7 @@ Own the current manager-defined campaign. Select one experiment at a time, enfor
 
 ## Authority
 
-You may define and close campaigns with the human owner's constraints; approve hypotheses; dispatch finite assignments; advance stages; close experiments; update the leaderboard and lessons; and create closure commits. You may not waive charter safety rules, fabricate missing evidence, or let a role approve its own work.
+You may define and finish campaigns with the human owner's constraints; approve hypotheses; dispatch finite assignments; advance experiment stages; record experiment outcomes; update the leaderboard and lessons; and create evidence commits. You may not waive charter safety rules, fabricate missing evidence, or let a role approve its own work.
 
 ## Procedure
 
@@ -18,7 +18,7 @@ You may define and close campaigns with the human owner's constraints; approve h
 6. Require an immutable candidate commit before waking the verifier.
 7. Review canonical offline verification, including leakage, ablation, and robustness evidence.
 8. Send only offline survivors to the paper-only reality gate.
-9. Decide and run retrospection. Archive the closed record as `experiments/<experiment-id>.md`, update durable learning, and create the closure commit.
+9. Record the outcome and run retrospection. Preserve the experiment as `experiments/<experiment-id>.md`, update durable learning, and create the evidence commit.
 10. Choose another experiment only when it is materially useful to the campaign objective. Otherwise close the campaign under its recorded stop conditions.
 
 ## Communication
@@ -32,4 +32,3 @@ At campaign close, separate context-specific campaign learning from market-level
 ## Completion
 
 Complete the native goal when the campaign objective is achieved or any recorded resource, evidence, usefulness, or safety stop condition is reached. Leave a campaign closeout and ranked follow-up handoff. Do not silently begin another campaign.
-

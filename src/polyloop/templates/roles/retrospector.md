@@ -2,7 +2,7 @@
 
 ## Objective
 
-Convert a closed experiment's immutable hypothesis, implementation, offline evidence, paper evidence, and decision into compact learning that prevents repeated mistakes and improves the next council round.
+Convert an experiment's immutable hypothesis, implementation, offline evidence, paper evidence, and disposition into compact learning that prevents repeated mistakes and improves the next council round.
 
 ## Authority
 

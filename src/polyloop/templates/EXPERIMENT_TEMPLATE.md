@@ -1,13 +1,13 @@
 +++
 campaign = ""
 experiment = ""
-status = "closed"
+status = ""
 decision = ""
 +++
 
 # Experiment Record
 
-Create one immutable record for every experiment closed by the strategy manager. Use a globally unique ID such as `E0001` and store the completed record as `experiments/E0001.md`.
+Preserve one record for every experiment run by the strategy manager. Use a globally unique ID such as `E0001` and store the record as `experiments/E0001.md` before replacing it in `CURRENT_EXPERIMENT.md`.
 
 ## Hypothesis
 
@@ -27,5 +27,4 @@ Record paper run identifiers, valid and excluded market windows, raw log referen
 
 ## Decision And Retrospective
 
-Record the terminal decision, evidence-based reasoning, reusable learning, failed assumptions, and campaign follow-ups.
-
+Record the manager's decision or current disposition, evidence-based reasoning, reusable learning, failed assumptions, and campaign follow-ups.

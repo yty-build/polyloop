@@ -26,7 +26,7 @@ Do not treat a model transcript as authoritative evidence. Verify claims against
 
 ## Git Discipline
 
-Evaluations may run many times without creating a commit. The builder creates an immutable candidate commit before independent verification. The manager archives one closed record under `experiments/` and creates the experiment closure commit after decision and retrospection. Do not rewrite or discard evidence from rejected experiments.
+Evaluations may run many times without creating a commit. The builder creates an immutable candidate commit before independent verification. Before replacing the current experiment, the manager preserves its record under `experiments/` and commits the accumulated evidence. Do not rewrite or discard evidence from rejected, paused, or inconclusive experiments.
 
 ## Handoff Standard
 

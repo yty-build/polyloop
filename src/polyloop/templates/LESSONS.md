@@ -10,9 +10,8 @@ This file contains compact guidance that survived independent verification. Do n
 
 Record rejected mechanisms, leakage failures, fragile parameters, execution mismatches, and duplicated ideas with experiment and commit references.
 
-- No closed failures yet.
+- No recorded failures yet.
 
 ## Open Questions
 
 - Establish the authoritative baseline and data snapshot.
-

@@ -41,13 +41,12 @@ No handoff yet.
 
 ## Decision
 
-No decision yet. Allowed terminal decisions are `promote`, `reject`, `inconclusive`, or `blocked`.
+No decision yet. The strategy manager records the outcome appropriate to the experiment.
 
 ## Retrospective
 
 No retrospective yet.
 
-## Closure
+## History
 
-After decision and retrospection, set `status = "closed"`, set `decision`, preserve the completed record as `experiments/<experiment-id>.md`, and reset this file. `polyloop status` derives observed counts only from those closed records.
-
+Before replacing this experiment with another, preserve its current record as `experiments/<experiment-id>.md`. `polyloop status` counts the unique experiment ID whether it is current, completed, failed, paused, or otherwise recorded; it does not interpret or control the lifecycle.

@@ -20,13 +20,10 @@ class StatusReport:
 
 @dataclass(frozen=True)
 class ExperimentObservation:
-    current_campaign_closed: int
-    total_closed: int
-    closed_ids: frozenset[str]
+    current_campaign_recorded: int
+    total_recorded: int
+    recorded_ids: frozenset[str]
     warnings: tuple[str, ...]
-
-
-TERMINAL_DECISIONS = {"promote", "reject", "inconclusive", "blocked"}
 
 
 def build_status_report(
@@ -152,31 +149,33 @@ def _campaign_status(config: ProjectConfig) -> tuple[str, str, list[str]]:
             f"{experiment_campaign or 'none'}, not {campaign_id}"
         )
 
-    observation = observe_experiments(config.root, raw_campaign_id)
+    observation = observe_experiments(
+        config.root,
+        raw_campaign_id,
+        current_experiment=experiment_id if experiment_id != "none" else "",
+        current_experiment_campaign=experiment_campaign,
+    )
     warnings.extend(observation.warnings)
-    current_status = str(experiment.get("status", "")).strip().lower()
-    if (
-        experiment_id != "none"
-        and current_status == "closed"
-        and experiment_id not in observation.closed_ids
-    ):
-        warnings.append(
-            f"closed current experiment {experiment_id} has not been archived under experiments/"
-        )
 
     return (
         f"{campaign_id} {status}, active={experiment_id}, stage={stage}",
-        f"{observation.current_campaign_closed} closed in {campaign_id}, "
-        f"{observation.total_closed} closed across workspace",
+        f"{observation.current_campaign_recorded} recorded in {campaign_id}, "
+        f"{observation.total_recorded} recorded across workspace",
         warnings,
     )
 
 
-def observe_experiments(root: Path, current_campaign: str) -> ExperimentObservation:
+def observe_experiments(
+    root: Path,
+    current_campaign: str,
+    *,
+    current_experiment: str = "",
+    current_experiment_campaign: str = "",
+) -> ExperimentObservation:
     experiment_root = root / "experiments"
     candidates = set(experiment_root.glob("*.md"))
     candidates.update(experiment_root.glob("*/EXPERIMENT.md"))
-    closed: dict[str, str] = {}
+    recorded: dict[str, str] = {}
     warnings: list[str] = []
 
     for path in sorted(candidates):
@@ -190,31 +189,25 @@ def observe_experiments(root: Path, current_campaign: str) -> ExperimentObservat
             if path.name != "EXPERIMENT_TEMPLATE.md":
                 warnings.append(f"{path} has no experiment identifier")
             continue
-        if experiment_id in closed:
-            warnings.append(f"duplicate closed experiment identifier {experiment_id}")
+        if experiment_id in recorded:
+            warnings.append(f"duplicate experiment identifier {experiment_id}")
             continue
 
         campaign_id = str(metadata.get("campaign", "")).strip()
-        record_status = str(metadata.get("status", "")).strip().lower()
-        decision = str(metadata.get("decision", "")).strip().lower()
-        if record_status != "closed":
-            warnings.append(f"{path} is archived but status is not closed")
-            continue
-        if decision not in TERMINAL_DECISIONS:
-            warnings.append(f"{path} has no valid terminal decision")
-            continue
         if not campaign_id:
             warnings.append(f"{path} has no campaign identifier")
-            continue
-        closed[experiment_id] = campaign_id
+        recorded[experiment_id] = campaign_id
+
+    if current_experiment and current_experiment not in recorded:
+        recorded[current_experiment] = current_experiment_campaign or current_campaign
 
     current_count = sum(
-        1 for campaign_id in closed.values() if campaign_id == current_campaign
+        1 for campaign_id in recorded.values() if campaign_id == current_campaign
     )
     return ExperimentObservation(
-        current_campaign_closed=current_count,
-        total_closed=len(closed),
-        closed_ids=frozenset(closed),
+        current_campaign_recorded=current_count,
+        total_recorded=len(recorded),
+        recorded_ids=frozenset(recorded),
         warnings=tuple(warnings),
     )
 

@@ -84,7 +84,7 @@ def test_init_is_idempotent_and_status_is_healthy(
         "retrospector",
     ]
     output = capsys.readouterr().out
-    assert "Experiments: 0 closed in none, 0 closed across workspace" in output
+    assert "Experiments: 0 recorded in none, 0 recorded across workspace" in output
     assert "Attach: tattach test-strategy" in output
 
 
