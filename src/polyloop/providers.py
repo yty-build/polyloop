@@ -110,6 +110,31 @@ def load_role_context(
         f"Function: {function_name}\n\n"
         f"{shared.rstrip()}\n\n{role.rstrip()}\n"
     )
+    if role_name == "manager" and pane_targets:
+        context += (
+            "\n# Manager Team Runtime\n\n"
+            f"Council pane: {pane_targets['council']} - ranked hypotheses and "
+            "external-research requests\n"
+            f"Builder pane: {pane_targets['builder']} - approved strategy "
+            "implementation\n"
+            f"Verifier pane: {pane_targets['verifier']} - canonical offline Result\n"
+            f"Reality controller pane: "
+            f"{pane_targets[REALITY_CONTROLLER_FUNCTION]} - bot integration, "
+            "deployment, and paper Result\n"
+            f"Bot integrator pane: {pane_targets[BOT_INTEGRATOR_ROLE]} - directed "
+            "only by the reality controller\n"
+            f"Retrospector pane: {pane_targets['retrospector']} - learning after "
+            "the manager decision\n"
+            f"External researcher window: {config.session}:"
+            f"{EXTERNAL_RESEARCHER_WINDOW} - requested only through Council\n\n"
+            "Before waking a function, compute the SHA-256 of "
+            "CURRENT_EXPERIMENT.md and include it in the short message. Send text "
+            "and Enter with two separate commands: first "
+            "`tmux send-keys -t <target> -l -- '<message>'`, then "
+            "`tmux send-keys -t <target> Enter`. Require the function to verify the "
+            "expected SHA before acting and before writing, then return the new SHA "
+            "after writing its named section.\n"
+        )
     researcher = config.external_researcher
     if role_name == "council" and researcher:
         target = f"{config.session}:{EXTERNAL_RESEARCHER_WINDOW}"
@@ -142,12 +167,12 @@ def load_role_context(
                 "You own this two-pane team. After an offline pass, put the detailed "
                 "integration assignment in CURRENT_EXPERIMENT.md and send only a short "
                 "wake-up message to the bot integrator pane. Do not implement bot code. "
-                "Review its immutable handoff before any paper deployment.\n"
+                "Review its immutable Result before any paper deployment.\n"
             )
         else:
             context += (
                 "Accept assignments only from the reality controller for the current "
-                "offline-approved experiment. Record the detailed handoff in "
+                "offline-approved experiment. Record the detailed Result in "
                 "CURRENT_EXPERIMENT.md and notify the controller pane when complete. "
                 "Do not deploy or operate the bot.\n"
             )

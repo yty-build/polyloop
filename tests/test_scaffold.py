@@ -30,7 +30,16 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
     assert (tmp_path / "experiments" / "EXPERIMENT_TEMPLATE.md").is_file()
     assert (tmp_path / "campaigns" / ".gitkeep").is_file()
     assert (tmp_path / "roles" / "bot-integrator.md").is_file()
-    assert "Bot Integration Handoff" in (tmp_path / "CURRENT_EXPERIMENT.md").read_text(
+    current_experiment = (tmp_path / "CURRENT_EXPERIMENT.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Council Result" in current_experiment
+    assert "Builder Result" in current_experiment
+    assert "Verifier Result" in current_experiment
+    assert "Bot Integration Result" in current_experiment
+    assert "Reality Result" in current_experiment
+    assert "Handoff" not in current_experiment
+    assert "expected SHA-256" in (tmp_path / "roles" / "shared.md").read_text(
         encoding="utf-8"
     )
 

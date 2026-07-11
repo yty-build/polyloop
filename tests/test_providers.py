@@ -130,3 +130,39 @@ def test_reality_team_receives_each_others_pane_targets(tmp_path: Path) -> None:
     assert "Reality controller pane: %10" in integrator
     assert "Never combine the text and Enter" in integrator
     assert "Do not deploy or operate the bot" in integrator
+
+
+def test_manager_receives_complete_team_runtime(tmp_path: Path) -> None:
+    write_default_config(
+        tmp_path,
+        session="manager-test",
+        description="test",
+        provider="codex",
+    )
+    roles = tmp_path / "roles"
+    roles.mkdir()
+    (roles / "shared.md").write_text("SHARED\n", encoding="utf-8")
+    (roles / "manager.md").write_text("MANAGER\n", encoding="utf-8")
+    config = load_config(tmp_path)
+    targets = {
+        "manager": "%10",
+        "council": "%11",
+        "builder": "%12",
+        "verifier": "%13",
+        "reality-controller": "%14",
+        "bot-integrator": "%15",
+        "retrospector": "%16",
+    }
+
+    manager = load_role_context(config, "manager", pane_targets=targets)
+
+    assert "# Manager Team Runtime" in manager
+    assert "Council pane: %11" in manager
+    assert "Builder pane: %12" in manager
+    assert "Verifier pane: %13" in manager
+    assert "Reality controller pane: %14" in manager
+    assert "Bot integrator pane: %15" in manager
+    assert "Retrospector pane: %16" in manager
+    assert "manager-test:external-researcher" in manager
+    assert "compute the SHA-256" in manager
+    assert "two separate commands" in manager

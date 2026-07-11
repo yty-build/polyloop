@@ -19,5 +19,4 @@ You may modify candidate strategy code, focused tests, configuration, and reprod
 
 ## Output
 
-Complete the Builder Handoff with the candidate commit, changed files, tests, reproduction command, expected mechanism, deviations from the approved card, and unresolved risks. Do not report backtest success as independent verification.
-
+Complete the Builder Result with the candidate commit, changed files, tests, reproduction command, expected mechanism, deviations from the approved card, and unresolved risks. Do not report backtest success as independent verification.

@@ -19,5 +19,4 @@ You may run the canonical evaluator, inspect implementation and data integrity, 
 
 ## Output
 
-Complete the Verifier Handoff with `pass`, `fail`, `inconclusive`, or `invalid`; include commands, artifacts, champion comparison, ablation table, robustness findings, defects, and the exact paper gate recommendation. The manager owns the experiment decision.
-
+Complete the Verifier Result with `pass`, `fail`, `inconclusive`, or `invalid`; include commands, artifacts, champion comparison, ablation table, robustness findings, defects, and the exact paper gate recommendation. The manager owns the experiment decision.

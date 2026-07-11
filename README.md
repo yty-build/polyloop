@@ -119,7 +119,7 @@ Polyloop launches that exact command in a dedicated `external-researcher` tmux w
 
 ## Reality Gate
 
-The canonical verifier owns offline backtesting and sends only an immutable survivor into the Reality gate. The bot integrator reuses the approved strategy module, adds paper-bot adapters and deterministic strategy-to-bot parity tests, then creates a separate immutable bot commit. It cannot deploy or approve that work. The reality controller reviews the handoff, deploys the exact artifact to the approved remote paper host, operates the required real-market windows, preserves raw logs, and recommends the Reality result. It cannot modify bot code or rerun the canonical evaluator.
+The canonical verifier owns offline backtesting and sends only an immutable survivor into the Reality gate. The bot integrator reuses the approved strategy module, adds paper-bot adapters and deterministic strategy-to-bot parity tests, then creates a separate immutable bot commit. It cannot deploy or approve that work. The reality controller reviews the Bot Integration Result, deploys the exact artifact to the approved remote paper host, operates the required real-market windows, preserves raw logs, and recommends the Reality Result. It cannot modify bot code or rerun the canonical evaluator.
 
 Both panes are local control agents; heavy integration tests, builds, and paper services belong on the strategy's configured remote infrastructure. Polyloop does not store SSH keys or hard-code a server.
 
@@ -127,7 +127,7 @@ Both panes are local control agents; heavy integration tests, builds, and paper 
 
 `AGENTS.md` is the workspace-wide Codex contract. The files in `roles/` are the authoritative function contracts. On launch, Polyloop reads `roles/shared.md` and the function-specific role file and injects that content using the provider's supported context mechanism. Workers are then told to read the current project and campaign files and wait for a finite assignment.
 
-Detailed assignments and handoffs belong in `CURRENT_EXPERIMENT.md`; tmux messages should only wake the relevant role. Before the manager replaces the current experiment, it preserves that experiment as `experiments/E####.md`. Polyloop counts unique experiment IDs from the current record and historical records regardless of status or decision; it never increments, limits, or controls them.
+The assignment, function Results, decision, and retrospective belong in `CURRENT_EXPERIMENT.md`; tmux messages should only wake the relevant function or report completion with the new file SHA-256. Before the manager replaces the current experiment, it preserves that experiment as `experiments/E####.md`. Polyloop counts unique experiment IDs from the current record and historical records regardless of status or decision; it never increments, limits, or controls them.
 
 ## Campaign Goals
 

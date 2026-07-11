@@ -23,25 +23,25 @@ Only the strategy manager may activate an experiment. Polyloop observes experime
 
 Record immutable source paths, timestamps, row/window counts, checksums, feature definitions, exclusions, and known data-quality limitations. Store large raw data outside this document and reference it precisely.
 
-## Council Handoff
+## Council Result
 
-No handoff yet.
+No result yet.
 
-## Builder Handoff
+## Builder Result
 
-No handoff yet.
+No result yet.
 
-## Verifier Handoff
+## Verifier Result
 
-No handoff yet.
+No result yet.
 
-## Bot Integration Handoff
+## Bot Integration Result
 
-No handoff yet.
+No result yet.
 
-## Reality Handoff
+## Reality Result
 
-No handoff yet.
+No result yet.
 
 ## Decision
 

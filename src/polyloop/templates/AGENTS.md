@@ -6,7 +6,7 @@ This Git repository is the durable source of truth. Read these files before acti
 
 1. `PROJECT_CHARTER.md` for the market, evidence standard, and safety boundary.
 2. `CAMPAIGN.md` for the finite campaign objective and activation state.
-3. `CURRENT_EXPERIMENT.md` for the manager-owned active handoff.
+3. `CURRENT_EXPERIMENT.md` for the manager-owned assignment, function Results, decision, and retrospective.
 4. `LEADERBOARD.md`, `LESSONS.md`, archived campaigns, and experiment records for prior evidence.
 5. `roles/shared.md` and the current function's role contract for responsibility boundaries.
 
@@ -35,7 +35,7 @@ Only the strategy manager may activate a campaign goal.
 
 - `status = "draft"`: report the missing seed fields and do not create a goal. A manually started setup assistant may edit the seed only when the user explicitly asks it to bootstrap the campaign.
 - `status = "ready"` with `auto_start = true`: validate the seed, directly create the provider-native finite goal from `Manager Goal Primer`, change the campaign status to `active`, and begin the loop.
-- `status = "active"` with `auto_start = true`: inspect native goal state and the durable handoff, then resume or reconstruct the same campaign goal without starting another campaign.
+- `status = "active"` with `auto_start = true`: inspect native goal state and the durable current experiment record, then resume or reconstruct the same campaign goal without starting another campaign.
 - `status = "paused"` or `status = "complete"`: do not auto-start or auto-resume.
 - `auto_start = false`: wait for explicit activation even if the seed is otherwise ready.
 
@@ -46,6 +46,8 @@ When the campaign is not eligible for activation, role-window initialization sta
 ## Experiment Loop
 
 The manager chooses and records one falsifiable experiment at a time. Polyloop observes experiment records but never assigns IDs, advances stages, closes experiments, or limits how many may run. Workers accept finite manager assignments; only the verifier issues canonical offline decisions. Inside the two-pane `reality` window, the bot integrator creates the deployable artifact and the reality controller independently checks, deploys, and operates it in paper mode.
+
+`CURRENT_EXPERIMENT.md` is the single live experiment record. The manager owns its assignment, front matter, and decision. Each function verifies the expected file SHA-256, writes only its named section, and returns the new SHA-256. Tmux carries only short wake-up and completion messages; transcripts are not experiment state.
 
 The council may use a configured `external-researcher` tmux tool window for a bounded source scan when the manager requests it. The tool window returns discovery material to the council; it is not a seventh decision-making role, does not debate or approve hypotheses, and never supplies verification evidence.
 

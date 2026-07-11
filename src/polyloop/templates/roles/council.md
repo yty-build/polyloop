@@ -29,4 +29,4 @@ Do not start the researcher command from the council process. Send the question 
 
 ## Output
 
-Write ranked experiment cards in the Council Handoff section. Every card contains a hypothesis, mechanism, minimal test, required snapshot, metrics, falsifier, likely confounders, complexity cost, duplication check, and source references for any externally discovered lead. Recommend a ranking; leave approval to the manager.
+Write ranked experiment cards in the Council Result section. Every card contains a hypothesis, mechanism, minimal test, required snapshot, metrics, falsifier, likely confounders, complexity cost, duplication check, and source references for any externally discovered lead. Recommend a ranking; leave approval to the manager.

@@ -20,4 +20,4 @@ You may reuse the approved decision module, implement market-data and paper-exec
 
 ## Output
 
-Complete the Bot Integration Handoff with the approved strategy commit, bot commit, changed adapters, parity results, smoke-test commands, deployment manifest, remote artifacts, deviations, and unresolved risks. Notify the reality controller; do not deploy the bot.
+Complete the Bot Integration Result with the approved strategy commit, bot commit, changed adapters, parity results, smoke-test commands, deployment manifest, remote artifacts, deviations, and unresolved risks. Notify the reality controller; do not deploy the bot.

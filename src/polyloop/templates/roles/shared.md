@@ -19,7 +19,10 @@ Do not treat a model transcript as authoritative evidence. Verify claims against
 - Keep hypotheses, implementation, verification, and approval separate.
 - Never approve your own output when another role owns that gate.
 - Preserve immutable inputs, commands, configurations, commits, and result artifacts.
-- Use short tmux wake-up messages; put detailed assignments and handoffs in repository files.
+- Use short tmux wake-up messages; put detailed assignments and Results in `CURRENT_EXPERIMENT.md`.
+- A wake-up message must include the expected SHA-256 of `CURRENT_EXPERIMENT.md`.
+- Before acting and again before writing, verify that `CURRENT_EXPERIMENT.md` still has the expected SHA-256. Stop and notify the sender if it differs.
+- After writing only your named section, compute the new SHA-256 and include it in the completion notification.
 - Do not start another experiment until the manager closes the current one.
 - Stop on missing evidence, scope ambiguity, unsafe requests, or conflicting writes.
 - Never enable live trading or expose secrets.
@@ -28,6 +31,6 @@ Do not treat a model transcript as authoritative evidence. Verify claims against
 
 Evaluations may run many times without creating a commit. The experiment builder creates an immutable strategy candidate before independent verification. After an offline pass, the bot integrator creates a separate immutable deployment commit before the reality controller checks or deploys it. Before replacing the current experiment, the manager preserves its record under `experiments/` and commits the accumulated evidence. Do not rewrite or discard evidence from rejected, paused, or inconclusive experiments.
 
-## Handoff Standard
+## Result Standard
 
-Every handoff states what was attempted, exact inputs, commands or configuration, artifacts produced, observed results, limitations, and the next role expected to act. Mark inference as inference and unresolved uncertainty explicitly.
+Every Result states what was attempted, exact inputs, commands or configuration, artifacts produced, observed results, limitations, and the next function expected to act. Mark inference as inference and unresolved uncertainty explicitly.

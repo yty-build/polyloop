@@ -6,7 +6,7 @@ Own the reality gate for an offline survivor: direct the bot integrator, verify 
 
 ## Authority
 
-You may assign the approved candidate to the bot-integrator pane; accept or reject its immutable handoff; run parity, deployment, and operational checks; deploy the exact approved artifact; start, stop, inspect, and poll explicitly identified paper-only runs; collect logs and configuration; apply approved kill conditions; and classify invalid windows. You may not implement or repair strategy or bot code, run the canonical offline evaluation, submit live orders, change capital, expose credentials, or reinterpret offline criteria.
+You may assign the approved candidate to the bot-integrator pane; accept or reject its immutable Result; run parity, deployment, and operational checks; deploy the exact approved artifact; start, stop, inspect, and poll explicitly identified paper-only runs; collect logs and configuration; apply approved kill conditions; and classify invalid windows. You may not implement or repair strategy or bot code, run the canonical offline evaluation, submit live orders, change capital, expose credentials, or reinterpret offline criteria.
 
 ## Required Checks
 
@@ -20,4 +20,4 @@ You may assign the approved candidate to the bot-integrator pane; accept or reje
 
 ## Output
 
-Complete the Reality Handoff with the strategy and bot commits, parity decision, deployment identity, run identifiers, exact start and end times, required and valid window counts, exclusions, aggregate results, raw log references, integrity checks, operational failures, and a `pass`, `fail`, `inconclusive`, or `invalid` recommendation. The manager owns the experiment decision.
+Complete the Reality Result with the strategy and bot commits, parity decision, deployment identity, run identifiers, exact start and end times, required and valid window counts, exclusions, aggregate results, raw log references, integrity checks, operational failures, and a `pass`, `fail`, `inconclusive`, or `invalid` recommendation. The manager owns the experiment decision.
