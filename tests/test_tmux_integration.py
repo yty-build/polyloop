@@ -104,10 +104,10 @@ def test_init_is_idempotent_and_status_is_healthy(
     ).stdout.splitlines()
     assert windows == [
         "manager",
-        "council",
-        "builder",
-        "verifier",
-        "reality",
+        "strat-council",
+        "strat-builder",
+        "strat-verifier",
+        "bot-reality",
         "retrospector",
         "external-researcher",
     ]
@@ -118,7 +118,7 @@ def test_init_is_idempotent_and_status_is_healthy(
             tmux_socket,
             "list-panes",
             "-t",
-            "test-strategy:reality",
+            "test-strategy:bot-reality",
             "-F",
             "#{pane_index}|#{@polyloop_function}",
         ],
@@ -126,11 +126,11 @@ def test_init_is_idempotent_and_status_is_healthy(
         text=True,
         check=True,
     ).stdout.splitlines()
-    assert reality_panes == ["0|reality-controller", "1|bot-integrator"]
+    assert reality_panes == ["0|bot-reality", "1|bot-integrator"]
     output = capsys.readouterr().out
     assert "Experiments: 0 recorded in none, 0 recorded across workspace" in output
     assert "Campaign:  none draft, auto-start=off" in output
-    assert "reality-controller" in output
+    assert "bot-reality" in output
     assert "bot-integrator" in output
     assert "Attach: tattach test-strategy" in output
 
@@ -203,7 +203,7 @@ def test_external_researcher_launches_in_its_own_window(
             tmux_socket,
             "list-panes",
             "-t",
-            "research-window:reality",
+            "research-window:bot-reality",
             "-F",
             "#{@polyloop_function}|#{@polyloop_provider}",
         ],
@@ -212,7 +212,7 @@ def test_external_researcher_launches_in_its_own_window(
         check=True,
     ).stdout.splitlines()
     assert reality_panes == [
-        "reality-controller|codex",
+        "bot-reality|codex",
         "bot-integrator|codex",
     ]
     pane_ids_before_restart = subprocess.run(
@@ -222,7 +222,7 @@ def test_external_researcher_launches_in_its_own_window(
             tmux_socket,
             "list-panes",
             "-t",
-            "research-window:reality",
+            "research-window:bot-reality",
             "-F",
             "#{pane_id}",
         ],
@@ -240,7 +240,7 @@ def test_external_researcher_launches_in_its_own_window(
             tmux_socket,
             "list-panes",
             "-t",
-            "research-window:reality",
+            "research-window:bot-reality",
             "-F",
             "#{pane_id}",
         ],
@@ -251,9 +251,133 @@ def test_external_researcher_launches_in_its_own_window(
     assert pane_ids_after_restart == pane_ids_before_restart
     output = capsys.readouterr().out
     assert "Launched roles:" in output
-    assert "reality-controller" in output
+    assert "bot-reality" in output
     assert "bot-integrator" in output
     assert "Launched tools: external-researcher" in output
+
+
+def test_init_migrates_legacy_window_and_function_names(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    tmux_socket: str,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setenv("POLYLOOP_NOTES_FILE", str(tmp_path / "tmux-notes"))
+    project = tmp_path / "strategy"
+    assert (
+        main(
+            [
+                "init",
+                "--root",
+                str(project),
+                "--session",
+                "legacy-layout",
+                "--description",
+                "Legacy layout",
+                "--no-launch",
+            ]
+        )
+        == 0
+    )
+    capsys.readouterr()
+
+    for current, legacy, legacy_function in (
+        ("strat-council", "council", "council"),
+        ("strat-builder", "builder", "builder"),
+        ("strat-verifier", "verifier", "verifier"),
+        ("bot-reality", "reality", "reality-controller"),
+    ):
+        subprocess.run(
+            [
+                "tmux",
+                "-L",
+                tmux_socket,
+                "rename-window",
+                "-t",
+                f"legacy-layout:{current}",
+                legacy,
+            ],
+            check=True,
+        )
+        subprocess.run(
+            [
+                "tmux",
+                "-L",
+                tmux_socket,
+                "set-window-option",
+                "-q",
+                "-t",
+                f"legacy-layout:{legacy}",
+                "@polyloop_role",
+                legacy,
+            ],
+            check=True,
+        )
+        subprocess.run(
+            [
+                "tmux",
+                "-L",
+                tmux_socket,
+                "set-option",
+                "-p",
+                "-q",
+                "-t",
+                f"legacy-layout:{legacy}.0",
+                "@polyloop_function",
+                legacy_function,
+            ],
+            check=True,
+        )
+
+    assert main(["init", "--root", str(project), "--no-launch"]) == 0
+
+    windows = subprocess.run(
+        [
+            "tmux",
+            "-L",
+            tmux_socket,
+            "list-windows",
+            "-t",
+            "legacy-layout",
+            "-F",
+            "#{window_name}",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    assert windows == [
+        "manager",
+        "strat-council",
+        "strat-builder",
+        "strat-verifier",
+        "bot-reality",
+        "retrospector",
+        "external-researcher",
+    ]
+    functions = subprocess.run(
+        [
+            "tmux",
+            "-L",
+            tmux_socket,
+            "list-panes",
+            "-s",
+            "-t",
+            "legacy-layout",
+            "-F",
+            "#{@polyloop_function}",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    assert "strat-council" in functions
+    assert "strat-builder" in functions
+    assert "strat-verifier" in functions
+    assert "bot-reality" in functions
+    output = capsys.readouterr().out
+    assert "council->strat-council" in output
+    assert "reality->bot-reality" in output
 
 
 def test_session_cannot_be_claimed_by_two_workspaces(

@@ -10,11 +10,11 @@ You may define and finish campaigns with the human owner's constraints; approve 
 
 ## Team
 
-- Council proposes and ranks hypotheses; it never approves one.
-- Builder implements the manager-approved strategy and records the immutable candidate.
-- Verifier independently owns the canonical offline Result; it never tunes the candidate.
-- Reality controller owns bot integration, deployment, and the paper Result after an offline pass.
-- Bot integrator is directed by the reality controller and cannot deploy or approve its own artifact.
+- `strat-council` proposes and ranks hypotheses; it never approves one.
+- `strat-builder` implements the manager-approved strategy, runs development backtests on the assigned strategy-compute EC2 instance, and records the immutable candidate.
+- `strat-verifier` independently reruns the candidate in a clean workspace on that same EC2 instance and owns the canonical offline Result; it never tunes the candidate.
+- `bot-reality` owns bot integration, deployment, and the paper Result after an offline pass.
+- Bot integrator is directed by `bot-reality` and cannot deploy or approve its own artifact.
 - Retrospector records evidence-backed learning after the manager records the experiment decision.
 - External researcher is requested through Council and supplies unverified idea material only.
 
@@ -22,16 +22,17 @@ You may define and finish campaigns with the human owner's constraints; approve 
 
 1. Complete `CAMPAIGN.md` with an objective, starting evidence, resource boundary, and stop conditions before activating the native goal.
 2. Validate the champion, evaluator, data snapshot, paper requirement, and authoritative market facts.
-3. Ask the council for ranked falsifiable hypotheses grounded in current evidence and prior failures. Wait for and review the Council Result.
+3. Ask `strat-council` for ranked falsifiable hypotheses grounded in current evidence and prior failures. Wait for and review the Strategy Council Result.
 4. Approve exactly one hypothesis and write the complete assignment into `CURRENT_EXPERIMENT.md`.
-5. Compute the SHA-256 of `CURRENT_EXPERIMENT.md`, wake the builder with that expected SHA, and wait for the Builder Result and immutable candidate commit.
-6. Verify the new file SHA, compute the SHA for the verifier assignment, wake the verifier, and wait for the Verifier Result.
-7. Review canonical offline verification, including leakage, ablation, and robustness evidence. A non-pass moves to the manager decision without bot integration or paper testing.
-8. For an offline pass, compute the current file SHA, wake the reality controller, and wait for both the Bot Integration Result and Reality Result. The reality controller directs the bot integrator.
-9. Record the final `promote`, `reject`, `inconclusive`, or `blocked` decision in `CURRENT_EXPERIMENT.md`.
-10. Compute the current file SHA, wake the retrospector explicitly, and wait for the Retrospective section. Do not perform the retrospector's work yourself.
-11. Review the proposed learning, preserve the experiment as `experiments/<experiment-id>.md`, update durable learning, and create the evidence commit.
-12. Choose another experiment only when it is materially useful to the campaign objective. Otherwise close the campaign under its recorded stop conditions.
+5. Assign one isolated, per-experiment SHA/loop-suffixed EC2 strategy-compute instance carrying `PolyLoopRole=strategy-compute`. Never use an unsuffixed shared strategy instance. Record its exact Name, `PolyLoopId`, instance ID, region, baseline AMI, separate Builder and Verifier workspaces, one S3 experiment prefix, and separate Builder and Verifier artifact subprefixes. Never dispatch Builder and Verifier concurrently.
+6. Compute the SHA-256 of `CURRENT_EXPERIMENT.md`, wake `strat-builder` with that expected SHA, and wait for the Strategy Builder Result, immutable candidate commit, remote artifacts, and proof EC2 was stopped.
+7. Verify the new file SHA and the candidate full Git SHA from the Strategy Builder Result. Record that candidate SHA in Strategy Compute, recompute the experiment-file SHA, and wake `strat-verifier` with the same EC2 identity, candidate SHA, evaluator identity, and data checksums, but a clean independent workspace. Wait for the Strategy Verifier Result, independently regenerated artifacts, and proof EC2 was stopped.
+8. Review canonical offline verification, including leakage, ablation, robustness, suspicious-metric investigations, multiple-comparison control, and risk evidence. A non-pass moves to the manager decision without bot integration or paper testing.
+9. For an offline pass, compute the current file SHA, wake `bot-reality`, and wait for both the Bot Integration Result and Bot Reality Result. `bot-reality` directs the bot integrator.
+10. Record the final `promote`, `reject`, `inconclusive`, or `blocked` decision in `CURRENT_EXPERIMENT.md`.
+11. Compute the current file SHA, wake the retrospector explicitly, and wait for the Retrospective section. Do not perform the retrospector's work yourself.
+12. Review the proposed learning, preserve the experiment as `experiments/<experiment-id>.md`, update durable learning, and create the evidence commit.
+13. Choose another experiment only when it is materially useful to the campaign objective. Otherwise close the campaign under its recorded stop conditions.
 
 ## Communication
 

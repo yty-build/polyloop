@@ -1,31 +1,40 @@
 from __future__ import annotations
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 ROLES = (
     "manager",
-    "council",
-    "builder",
-    "verifier",
-    "reality",
+    "strat-council",
+    "strat-builder",
+    "strat-verifier",
+    "bot-reality",
     "retrospector",
 )
 
 BOT_INTEGRATOR_ROLE = "bot-integrator"
 ROLE_FUNCTIONS = (
     "manager",
-    "council",
-    "builder",
-    "verifier",
-    "reality",
+    "strat-council",
+    "strat-builder",
+    "strat-verifier",
+    "bot-reality",
     BOT_INTEGRATOR_ROLE,
     "retrospector",
 )
-REALITY_CONTROLLER_FUNCTION = "reality-controller"
-FUNCTION_BY_ROLE = {
-    **{role: role for role in ROLES},
-    "reality": REALITY_CONTROLLER_FUNCTION,
-    BOT_INTEGRATOR_ROLE: BOT_INTEGRATOR_ROLE,
+FUNCTION_BY_ROLE = {role: role for role in ROLE_FUNCTIONS}
+
+LEGACY_ROLE_NAMES = {
+    "strat-council": "council",
+    "strat-builder": "builder",
+    "strat-verifier": "verifier",
+    "bot-reality": "reality",
+}
+LEGACY_WINDOW_NAMES = {legacy: current for current, legacy in LEGACY_ROLE_NAMES.items()}
+LEGACY_FUNCTION_NAMES = {
+    "council": "strat-council",
+    "builder": "strat-builder",
+    "verifier": "strat-verifier",
+    "reality-controller": "bot-reality",
 }
 
 EXTERNAL_RESEARCHER_WINDOW = "external-researcher"

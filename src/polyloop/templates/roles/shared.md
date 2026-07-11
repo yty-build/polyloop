@@ -19,6 +19,10 @@ Do not treat a model transcript as authoritative evidence. Verify claims against
 - Keep hypotheses, implementation, verification, and approval separate.
 - Never approve your own output when another role owns that gate.
 - Preserve immutable inputs, commands, configurations, commits, and result artifacts.
+- Run full strategy backtests only on the exact manager-assigned, per-experiment SHA/loop-suffixed EC2 strategy-compute instance; do not use an unsuffixed shared strategy instance or place heavy compute on the tmux control machine.
+- Bind remote work to the recorded EC2 instance ID, evaluator identity, data checksums, and assigned S3 artifact subprefix rather than a mutable latest artifact. `strat-builder` derives and records the full SHA of its new immutable candidate; the manager records that SHA before `strat-verifier` is dispatched.
+- Keep `strat-builder` and `strat-verifier` remote workspaces separate. `strat-verifier` must regenerate canonical outputs independently.
+- Upload durable outputs before stopping EC2, stop it after each remote assignment, and record proof that the instance reached `stopped`.
 - Use short tmux wake-up messages; put detailed assignments and Results in `CURRENT_EXPERIMENT.md`.
 - A wake-up message must include the expected SHA-256 of `CURRENT_EXPERIMENT.md`.
 - Before acting and again before writing, verify that `CURRENT_EXPERIMENT.md` still has the expected SHA-256. Stop and notify the sender if it differs.
@@ -29,7 +33,7 @@ Do not treat a model transcript as authoritative evidence. Verify claims against
 
 ## Git Discipline
 
-Evaluations may run many times without creating a commit. The experiment builder creates an immutable strategy candidate before independent verification. After an offline pass, the bot integrator creates a separate immutable deployment commit before the reality controller checks or deploys it. Before replacing the current experiment, the manager preserves its record under `experiments/` and commits the accumulated evidence. Do not rewrite or discard evidence from rejected, paused, or inconclusive experiments.
+Evaluations may run many times without creating a commit. `strat-builder` creates an immutable strategy candidate before independent verification. After an offline pass, the bot integrator creates a separate immutable deployment commit before `bot-reality` checks or deploys it. Before replacing the current experiment, the manager preserves its record under `experiments/` and commits the accumulated evidence. Do not rewrite or discard evidence from rejected, paused, or inconclusive experiments.
 
 ## Result Standard
 

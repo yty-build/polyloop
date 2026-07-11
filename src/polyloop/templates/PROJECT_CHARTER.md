@@ -25,6 +25,12 @@ Offline verification must include leakage checks, realistic execution assumption
 
 Define the primary metric, secondary diagnostics, minimum sample size, and acceptable drawdown before the first experiment. A single backtest score is not sufficient evidence.
 
+## Strategy Compute Boundary
+
+Run full strategy backtests and canonical offline verification only on the manager-assigned isolated AWS EC2 instance tagged `PolyLoopRole=strategy-compute`. Its Name must be per-experiment and include the recorded short SHA/loop suffix. Never silently reuse unsuffixed shared instances such as `strat_compute`, `strat_compute_codex`, or `strat_compute_claude`. Record the exact EC2 Name, `PolyLoopId`, instance ID, AWS region, baseline AMI, durable S3 result prefix, and final stopped-state check in the current experiment.
+
+`strat-builder` and `strat-verifier` must use the same immutable candidate Git SHA, champion SHA, evaluator version or SHA, and data snapshot checksums. They must use separate clean remote workspaces and separate Builder and Verifier artifact subprefixes under one experiment S3 prefix. `strat-builder` output is development evidence only; `strat-verifier` must independently check out the candidate and regenerate the canonical result. Do not run both functions against the instance concurrently. Upload durable artifacts before stopping the instance, stop it after each assignment, and verify the stopped state.
+
 ## Safety Boundary
 
 - Paper trading only unless this charter is explicitly changed by the human owner.

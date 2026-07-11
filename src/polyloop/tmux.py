@@ -12,6 +12,8 @@ from .constants import (
     BOT_INTEGRATOR_ROLE,
     EXTERNAL_RESEARCHER_WINDOW,
     FUNCTION_BY_ROLE,
+    LEGACY_FUNCTION_NAMES,
+    LEGACY_WINDOW_NAMES,
     ROLE_FUNCTIONS,
     ROLES,
     SHELL_COMMANDS,
@@ -59,6 +61,7 @@ class PaneState:
 class EnsureResult:
     created_session: bool
     created_windows: list[str]
+    renamed_windows: list[str]
     created_panes: list[str]
     launched_roles: list[str]
     launched_tools: list[str]
@@ -210,7 +213,15 @@ def ensure_tmux_session(
     if not tmux.available():
         raise TmuxError("tmux is not installed or not available")
 
-    result = EnsureResult(False, [], [], [], [], [])
+    result = EnsureResult(
+        created_session=False,
+        created_windows=[],
+        renamed_windows=[],
+        created_panes=[],
+        launched_roles=[],
+        launched_tools=[],
+        warnings=[],
+    )
     exists = tmux.session_exists(config.session)
     if exists:
         owner = tmux.get_session_option(config.session, "@polyloop_root")
@@ -243,6 +254,7 @@ def ensure_tmux_session(
             "duplicate tmux window names prevent safe role targeting: "
             + ", ".join(duplicate_names)
         )
+    windows = _migrate_legacy_layout(tmux, config.session, windows, result)
     managed_windows = set(ROLES)
     if config.external_researcher:
         managed_windows.add(EXTERNAL_RESEARCHER_WINDOW)
@@ -303,8 +315,8 @@ def ensure_tmux_session(
         )
         role_panes[role_name] = pane
 
-    reality_pane = role_panes["reality"]
-    reality_panes = _window_panes(tmux.list_panes(config.session), "reality")
+    reality_pane = role_panes["bot-reality"]
+    reality_panes = _window_panes(tmux.list_panes(config.session), "bot-reality")
     bot_integrator_pane = _find_function_pane(reality_panes, BOT_INTEGRATOR_ROLE)
     if bot_integrator_pane is None:
         unclaimed = [
@@ -327,19 +339,21 @@ def ensure_tmux_session(
             )
             new_panes = [
                 pane
-                for pane in _window_panes(tmux.list_panes(config.session), "reality")
+                for pane in _window_panes(
+                    tmux.list_panes(config.session), "bot-reality"
+                )
                 if pane.pane_id not in existing_ids
             ]
             if len(new_panes) != 1:
                 raise TmuxError(
-                    "could not identify the new bot-integrator pane in the reality window"
+                    "could not identify the new bot-integrator pane in the bot-reality window"
                 )
             bot_integrator_pane = new_panes[0]
-            result.created_panes.append("reality:bot-integrator")
+            result.created_panes.append("bot-reality:bot-integrator")
             tmux.run(
                 "select-layout",
                 "-t",
-                f"{config.session}:reality",
+                f"{config.session}:bot-reality",
                 "even-horizontal",
             )
         tmux.set_pane_option(
@@ -534,3 +548,44 @@ def _duplicate_window_names(windows: list[WindowState]) -> list[str]:
             duplicates.add(window.name)
         seen.add(window.name)
     return sorted(duplicates)
+
+
+def _migrate_legacy_layout(
+    tmux: Tmux,
+    session: str,
+    windows: list[WindowState],
+    result: EnsureResult,
+) -> list[WindowState]:
+    by_name = {window.name: window for window in windows}
+    for legacy_name, current_name in LEGACY_WINDOW_NAMES.items():
+        legacy = by_name.get(legacy_name)
+        if legacy is None:
+            continue
+        if current_name in by_name:
+            raise TmuxError(
+                f"tmux session contains both legacy window {legacy_name!r} and "
+                f"current window {current_name!r}; resolve the duplicate before init"
+            )
+        if legacy.role_marker and legacy.role_marker != legacy_name:
+            raise TmuxError(
+                f"legacy window {session}:{legacy_name} is marked for role "
+                f"{legacy.role_marker!r}; refusing to rename it"
+            )
+        tmux.run(
+            "rename-window",
+            "-t",
+            f"{session}:{legacy_name}",
+            current_name,
+        )
+        tmux.set_window_option(
+            f"{session}:{current_name}", "@polyloop_role", current_name
+        )
+        result.renamed_windows.append(f"{legacy_name}->{current_name}")
+        by_name[current_name] = legacy
+        del by_name[legacy_name]
+
+    for pane in tmux.list_panes(session):
+        current_function = LEGACY_FUNCTION_NAMES.get(pane.function_marker)
+        if current_function:
+            tmux.set_pane_option(pane.pane_id, "@polyloop_function", current_function)
+    return tmux.list_windows(session)

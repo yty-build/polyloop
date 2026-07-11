@@ -23,15 +23,29 @@ Only the strategy manager may activate an experiment. Polyloop observes experime
 
 Record immutable source paths, timestamps, row/window counts, checksums, feature definitions, exclusions, and known data-quality limitations. Store large raw data outside this document and reference it precisely.
 
-## Council Result
+## Strategy Compute
+
+- Per-experiment SHA/loop-suffixed EC2 strategy-compute Name, `PolyLoopId`, and instance ID: `not assigned`
+- AWS region and baseline AMI: `not assigned`
+- Candidate full Git SHA: `filled by manager after the Strategy Builder Result and before Verifier dispatch`
+- Champion full Git SHA: `not assigned`
+- Evaluator version or full Git SHA: `not assigned`
+- Data snapshot checksums: `not assigned`
+- Builder remote workspace: `not assigned`
+- Verifier clean remote workspace: `not assigned`
+- Durable S3 experiment prefix: `not assigned`
+- Builder and Verifier artifact subprefixes: `not assigned`
+- Final EC2 stopped-state evidence: `not assigned`
+
+## Strategy Council Result
 
 No result yet.
 
-## Builder Result
+## Strategy Builder Result
 
 No result yet.
 
-## Verifier Result
+## Strategy Verifier Result
 
 No result yet.
 
@@ -39,7 +53,7 @@ No result yet.
 
 No result yet.
 
-## Reality Result
+## Bot Reality Result
 
 No result yet.
 

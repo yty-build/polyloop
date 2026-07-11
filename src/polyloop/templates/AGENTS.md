@@ -45,10 +45,12 @@ When the campaign is not eligible for activation, role-window initialization sta
 
 ## Experiment Loop
 
-The manager chooses and records one falsifiable experiment at a time. Polyloop observes experiment records but never assigns IDs, advances stages, closes experiments, or limits how many may run. Workers accept finite manager assignments; only the verifier issues canonical offline decisions. Inside the two-pane `reality` window, the bot integrator creates the deployable artifact and the reality controller independently checks, deploys, and operates it in paper mode.
+The manager chooses and records one falsifiable experiment at a time. Polyloop observes experiment records but never assigns IDs, advances stages, closes experiments, or limits how many may run. Workers accept finite manager assignments; only `strat-verifier` issues canonical offline decisions. Inside the two-pane `bot-reality` window, the bot integrator creates the deployable artifact and `bot-reality` independently checks, deploys, and operates it in paper mode.
 
 `CURRENT_EXPERIMENT.md` is the single live experiment record. The manager owns its assignment, front matter, and decision. Each function verifies the expected file SHA-256, writes only its named section, and returns the new SHA-256. Tmux carries only short wake-up and completion messages; transcripts are not experiment state.
 
-The council may use a configured `external-researcher` tmux tool window for a bounded source scan when the manager requests it. The tool window returns discovery material to the council; it is not a seventh decision-making role, does not debate or approve hypotheses, and never supplies verification evidence.
+`strat-builder` and `strat-verifier` must run full backtests on the same manager-assigned isolated EC2 strategy-compute instance against the same immutable candidate Git SHA, evaluator version, and data snapshot. They use separate clean remote workspaces. `strat-verifier` reruns the canonical evaluation independently and never treats `strat-builder` output as verification. Each remote assignment preserves durable artifacts, stops the EC2 instance, and verifies that it is stopped.
+
+`strat-council` may use a configured `external-researcher` tmux tool window for a bounded source scan when the manager requests it. The tool window returns discovery material to `strat-council`; it is not an additional decision-making role, does not debate or approve hypotheses, and never supplies verification evidence.
 
 Keep all activity paper-only unless the human owner explicitly changes the charter. Never submit live orders, transfer funds, expose credentials, or weaken kill conditions.

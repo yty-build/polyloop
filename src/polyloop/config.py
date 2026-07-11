@@ -7,7 +7,13 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
-from .constants import BOT_INTEGRATOR_ROLE, EFFORT_LEVELS, PROVIDERS, ROLE_FUNCTIONS
+from .constants import (
+    BOT_INTEGRATOR_ROLE,
+    EFFORT_LEVELS,
+    LEGACY_ROLE_NAMES,
+    PROVIDERS,
+    ROLE_FUNCTIONS,
+)
 
 
 class ConfigError(ValueError):
@@ -90,9 +96,16 @@ def load_config(root: Path) -> ProjectConfig:
     roles: dict[str, RoleConfig] = {}
     for role_name in ROLE_FUNCTIONS:
         role_raw = roles_raw.get(role_name)
+        legacy_name = LEGACY_ROLE_NAMES.get(role_name)
+        if role_raw is not None and legacy_name and legacy_name in roles_raw:
+            raise ConfigError(
+                f"configure only [roles.{role_name}] or [roles.{legacy_name}], not both"
+            )
+        if role_raw is None and legacy_name:
+            role_raw = roles_raw.get(legacy_name)
         inherited = False
         if role_name == BOT_INTEGRATOR_ROLE and role_raw is None:
-            role_raw = roles_raw.get("reality")
+            role_raw = roles_raw.get("bot-reality") or roles_raw.get("reality")
             inherited = True
         if not isinstance(role_raw, dict):
             raise ConfigError(f"missing [roles.{role_name}] table")
@@ -124,7 +137,8 @@ def load_config(root: Path) -> ProjectConfig:
             extra_args=tuple(extra_args_raw),
         )
 
-    unknown_roles = sorted(set(roles_raw) - set(ROLE_FUNCTIONS))
+    accepted_roles = set(ROLE_FUNCTIONS) | set(LEGACY_ROLE_NAMES.values())
+    unknown_roles = sorted(set(roles_raw) - accepted_roles)
     if unknown_roles:
         raise ConfigError(f"unknown role tables: {', '.join(unknown_roles)}")
 
@@ -151,10 +165,10 @@ def write_default_config(
     notes_file = os.environ.get("POLYLOOP_NOTES_FILE", "~/.tmux-notes")
     effort_by_role = {
         "manager": "high",
-        "council": "high",
-        "builder": "high",
-        "verifier": "high",
-        "reality": "high",
+        "strat-council": "high",
+        "strat-builder": "high",
+        "strat-verifier": "high",
+        "bot-reality": "high",
         "retrospector": "high",
         BOT_INTEGRATOR_ROLE: "high",
     }
@@ -169,7 +183,14 @@ def write_default_config(
         'provider = "grok"',
         "command = " + json.dumps(["grok", "--yolo"]),
     ]
-    tmux_roles = {"manager", "council", "reality", BOT_INTEGRATOR_ROLE}
+    tmux_roles = {
+        "manager",
+        "strat-council",
+        "strat-builder",
+        "strat-verifier",
+        "bot-reality",
+        BOT_INTEGRATOR_ROLE,
+    }
     for role in ROLE_FUNCTIONS:
         extra_args = (
             [

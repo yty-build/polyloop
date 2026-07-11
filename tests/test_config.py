@@ -25,10 +25,10 @@ def test_default_config_round_trip(
     assert "[campaign]" not in (tmp_path / "polyloop.toml").read_text(encoding="utf-8")
     assert set(config.roles) == {
         "manager",
-        "council",
-        "builder",
-        "verifier",
-        "reality",
+        "strat-council",
+        "strat-builder",
+        "strat-verifier",
+        "bot-reality",
         "retrospector",
         "bot-integrator",
     }
@@ -36,9 +36,17 @@ def test_default_config_round_trip(
     assert config.external_researcher is not None
     assert config.external_researcher.provider == "grok"
     assert config.external_researcher.command == ("grok", "--yolo")
+    assert (
+        "sandbox_workspace_write.network_access=true"
+        in config.roles["strat-builder"].extra_args
+    )
+    assert (
+        "sandbox_workspace_write.network_access=true"
+        in config.roles["strat-verifier"].extra_args
+    )
 
 
-def test_legacy_config_inherits_reality_settings_for_bot_integrator(
+def test_config_inherits_bot_reality_settings_for_bot_integrator(
     tmp_path: Path,
 ) -> None:
     path = write_default_config(
@@ -60,6 +68,36 @@ def test_legacy_config_inherits_reality_settings_for_bot_integrator(
         in config.roles["bot-integrator"].extra_args
     )
     assert config.roles["bot-integrator"].resume_session == ""
+
+
+def test_legacy_role_names_are_loaded_as_current_functions(tmp_path: Path) -> None:
+    path = write_default_config(
+        tmp_path,
+        session="legacy-names",
+        description="legacy",
+        provider="codex",
+    )
+    content = path.read_text(encoding="utf-8")
+    for current, legacy in (
+        ("strat-council", "council"),
+        ("strat-builder", "builder"),
+        ("strat-verifier", "verifier"),
+        ("bot-reality", "reality"),
+    ):
+        content = content.replace(f"[roles.{current}]", f"[roles.{legacy}]")
+    path.write_text(content, encoding="utf-8")
+
+    config = load_config(tmp_path)
+
+    assert set(config.roles) == {
+        "manager",
+        "strat-council",
+        "strat-builder",
+        "strat-verifier",
+        "bot-reality",
+        "bot-integrator",
+        "retrospector",
+    }
 
 
 def test_external_researcher_must_have_a_command(tmp_path: Path) -> None:

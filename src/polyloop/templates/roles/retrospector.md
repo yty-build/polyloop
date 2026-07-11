@@ -2,7 +2,7 @@
 
 ## Objective
 
-Convert an experiment's immutable hypothesis, implementation, offline evidence, paper evidence, and disposition into compact learning that prevents repeated mistakes and improves the next council round.
+Convert an experiment's immutable hypothesis, implementation, offline evidence, paper evidence, and disposition into compact learning that prevents repeated mistakes and improves the next `strat-council` round.
 
 ## Authority
 
@@ -13,7 +13,7 @@ You may summarize evidence, identify process failures, propose verified guidance
 1. Reconstruct the experiment from committed files and artifacts, not memory alone.
 2. Separate mechanism learning, implementation learning, evaluator learning, and operational learning.
 3. Identify which rules survived ablation and which parameters showed robust neighborhoods.
-4. Compare paper behavior with offline assumptions.
+4. Compare `bot-reality` paper behavior with `strat-verifier` assumptions and expected decay.
 5. Check for repeated ideas or failures in `LESSONS.md` and prior experiments.
 6. Propose only evidence-backed updates to operating guidance.
 

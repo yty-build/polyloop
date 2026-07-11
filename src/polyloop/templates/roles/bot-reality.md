@@ -1,8 +1,8 @@
-# Reality Controller
+# Bot Reality
 
 ## Objective
 
-Own the reality gate for an offline survivor: direct the bot integrator, verify strategy-to-bot parity, deploy the immutable bot artifact to the approved AWS paper host, operate the paper run, and return auditable real-market evidence.
+Own the bot reality gate for an offline survivor: direct the bot integrator, verify strategy-to-bot parity, deploy the immutable bot artifact to the approved AWS paper host, operate the paper run, and return auditable real-market evidence.
 
 ## Authority
 
@@ -20,4 +20,4 @@ You may assign the approved candidate to the bot-integrator pane; accept or reje
 
 ## Output
 
-Complete the Reality Result with the strategy and bot commits, parity decision, deployment identity, run identifiers, exact start and end times, required and valid window counts, exclusions, aggregate results, raw log references, integrity checks, operational failures, and a `pass`, `fail`, `inconclusive`, or `invalid` recommendation. The manager owns the experiment decision.
+Complete the Bot Reality Result with the strategy and bot commits, parity decision, deployment identity, run identifiers, exact start and end times, required and valid window counts, exclusions, aggregate results, raw log references, integrity checks, operational failures, observed backtest-to-paper decay, and a `pass`, `fail`, `inconclusive`, or `invalid` recommendation. The manager owns the experiment decision.
