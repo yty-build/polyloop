@@ -58,7 +58,9 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
     assert "effective sample size" in verifier
     builder = (tmp_path / "roles" / "strat-builder.md").read_text(encoding="utf-8")
     assert "assigned EC2 strategy-compute instance" in builder
-    assert "independently record lifecycle evidence that it reached `stopped`" in builder
+    assert (
+        "independently record lifecycle evidence that it reached `stopped`" in builder
+    )
     assert "Do not access a locked holdout" in builder
     assert "artifact manifest" in builder
     shared = (tmp_path / "roles" / "shared.md").read_text(encoding="utf-8")
@@ -67,9 +69,7 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
     manager = (tmp_path / "roles" / "manager.md").read_text(encoding="utf-8")
     assert "Commit this pre-registration before Builder work" in manager
     assert "never create or infer human authorization" in manager
-    integrator = (tmp_path / "roles" / "bot-integrator.md").read_text(
-        encoding="utf-8"
-    )
+    integrator = (tmp_path / "roles" / "bot-integrator.md").read_text(encoding="utf-8")
     assert "Before changing bot code, write a short integration plan" in integrator
     assert "cancel-response ambiguity" in integrator
     reality = (tmp_path / "roles" / "bot-reality.md").read_text(encoding="utf-8")
