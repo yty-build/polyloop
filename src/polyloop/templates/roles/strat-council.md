@@ -13,9 +13,10 @@ You may propose, criticize, combine, and rank hypotheses. You may not approve an
 - Identify the proposed causal or market-mechanical reason for the edge.
 - State the smallest rule set that tests the mechanism.
 - Identify required features and possible leakage paths.
+- Identify the authoritative outcome truth and, for every proposed feature, its source timestamp, availability timestamp, maximum age, and whether the live bot can compute it causally.
 - Compare against the current champion and prior failures.
 - Define offline success, rejection, ablation, robustness, and paper evidence criteria.
-- Pre-register the primary metric, significance threshold, expected number of comparisons, risk limit, and failure condition before Builder work begins.
+- Pre-register the primary metric and minimum useful effect, data splits and locked-holdout policy, significance threshold, expected number of comparisons, correction method, canonical execution tier, risk limit, quantitative paper gate, and failure condition before Builder work begins.
 - Estimate implementation and evidence cost.
 
 ## External Researcher
@@ -30,4 +31,4 @@ Do not start the researcher command from the `strat-council` process. Send the q
 
 ## Output
 
-Write ranked experiment cards in the Strategy Council Result section. Every card contains a hypothesis, mechanism, minimal test, required snapshot, metrics, pre-registered statistical threshold, expected comparison count, risk boundary, falsifier, likely confounders, complexity cost, duplication check, and source references for any externally discovered lead. Recommend a ranking; leave approval to the manager.
+Write ranked experiment cards in the Strategy Council Result section. Every card contains a hypothesis, mechanism, minimal test, required snapshot, truth and feature-timing requirements, metrics and minimum useful effect, split and holdout policy, pre-registered statistical threshold and correction, expected comparison count, execution tier, quantitative paper gate, risk boundary, falsifier, likely confounders, complexity cost, duplication check, and source references for any externally discovered lead. Recommend a ranking; leave approval to the manager.

@@ -43,6 +43,10 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
     assert "Bot Integration Result" in current_experiment
     assert "Bot Reality Result" in current_experiment
     assert "SHA/loop-suffixed EC2 strategy-compute Name" in current_experiment
+    assert "Frozen Evaluation Contract" in current_experiment
+    assert "Locked-holdout reader" in current_experiment
+    assert "Machine-readable strategy-spec path" in current_experiment
+    assert "Current endpoint resolved from the instance ID" in current_experiment
     assert "Handoff" not in current_experiment
     assert "expected SHA-256" in (tmp_path / "roles" / "shared.md").read_text(
         encoding="utf-8"
@@ -54,7 +58,22 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
     assert "effective sample size" in verifier
     builder = (tmp_path / "roles" / "strat-builder.md").read_text(encoding="utf-8")
     assert "assigned EC2 strategy-compute instance" in builder
-    assert "record AWS evidence that it reached `stopped`" in builder
+    assert "independently record lifecycle evidence that it reached `stopped`" in builder
+    assert "Do not access a locked holdout" in builder
+    assert "artifact manifest" in builder
+    shared = (tmp_path / "roles" / "shared.md").read_text(encoding="utf-8")
+    assert "no model may infer, synthesize, or stand in" in shared
+    assert "does not need a commit for every evaluation attempt" in shared
+    manager = (tmp_path / "roles" / "manager.md").read_text(encoding="utf-8")
+    assert "Commit this pre-registration before Builder work" in manager
+    assert "never create or infer human authorization" in manager
+    integrator = (tmp_path / "roles" / "bot-integrator.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Before changing bot code, write a short integration plan" in integrator
+    assert "cancel-response ambiguity" in integrator
+    reality = (tmp_path / "roles" / "bot-reality.md").read_text(encoding="utf-8")
+    assert "Review the proposed integration plan before bot code changes" in reality
 
 
 def test_nested_strategy_requires_separate_git_worktree(tmp_path: Path) -> None:

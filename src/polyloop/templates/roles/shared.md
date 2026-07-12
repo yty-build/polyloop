@@ -19,10 +19,13 @@ Do not treat a model transcript as authoritative evidence. Verify claims against
 - Keep hypotheses, implementation, verification, and approval separate.
 - Never approve your own output when another role owns that gate.
 - Preserve immutable inputs, commands, configurations, commits, and result artifacts.
+- Treat the committed Frozen Evaluation Contract as immutable. Do not move thresholds, splits, exclusions, search budgets, or execution assumptions after seeing results; a material change starts a new experiment.
+- `strat-council` and `strat-builder` must not read a locked holdout. `strat-verifier` may read it only after the candidate and evaluator are immutable and the recorded authorization rule is satisfied, then must record the read and mark it spent. If human authorization is required, no model may infer, synthesize, or stand in for it.
+- Bind every claimed result to a machine-readable strategy specification and artifact manifest. Provider memory, pane output, and mutable aliases are not provenance.
 - Run full strategy backtests only on the exact manager-assigned, per-experiment SHA/loop-suffixed EC2 strategy-compute instance; do not use an unsuffixed shared strategy instance or place heavy compute on the tmux control machine.
-- Bind remote work to the recorded EC2 instance ID, evaluator identity, data checksums, and assigned S3 artifact subprefix rather than a mutable latest artifact. `strat-builder` derives and records the full SHA of its new immutable candidate; the manager records that SHA before `strat-verifier` is dispatched.
+- Bind remote work to the recorded EC2 instance ID, evaluator identity, data checksums, and assigned S3 artifact subprefix rather than a mutable latest artifact. Resolve the endpoint from that instance ID after each start; do not trust a cached IP or SSH alias. `strat-builder` derives and records the full SHA of its new immutable candidate; the manager records that SHA before `strat-verifier` is dispatched.
 - Keep `strat-builder` and `strat-verifier` remote workspaces separate. `strat-verifier` must regenerate canonical outputs independently.
-- Upload durable outputs before stopping EC2, stop it after each remote assignment, and record proof that the instance reached `stopped`.
+- Upload durable outputs before stopping EC2, request the stop through the AWS control plane after each remote assignment, independently confirm `stopped`, and record the lifecycle timestamps and cleanup action.
 - Use short tmux wake-up messages; put detailed assignments and Results in `CURRENT_EXPERIMENT.md`.
 - A wake-up message must include the expected SHA-256 of `CURRENT_EXPERIMENT.md`.
 - Before acting and again before writing, verify that `CURRENT_EXPERIMENT.md` still has the expected SHA-256. Stop and notify the sender if it differs.
@@ -33,7 +36,7 @@ Do not treat a model transcript as authoritative evidence. Verify claims against
 
 ## Git Discipline
 
-Evaluations may run many times without creating a commit. `strat-builder` creates an immutable strategy candidate before independent verification. After an offline pass, the bot integrator creates a separate immutable deployment commit before `bot-reality` checks or deploys it. Before replacing the current experiment, the manager preserves its record under `experiments/` and commits the accumulated evidence. Do not rewrite or discard evidence from rejected, paused, or inconclusive experiments.
+An experiment may contain several meaningful commits, but it does not need a commit for every evaluation attempt. Commit the frozen evaluation contract before Builder work, the immutable strategy candidate before independent verification, the finalized verifier report and manifest, the immutable bot artifact before paper deployment, and the archived record plus accepted lessons at final disposition. Do not rewrite or discard evidence from rejected, paused, or inconclusive experiments.
 
 ## Result Standard
 

@@ -16,6 +16,8 @@ manager  strat-council  strat-builder  strat-verifier  bot-reality             r
 
 Window names describe functions rather than providers. Each function defaults to Codex and can independently use Claude, Grok, or OpenCode through `polyloop.toml`. The `bot-reality` window is always prebuilt with two panes: the main pane is the deployer and paper-evidence checker, while the bot integrator converts only an offline-approved strategy into an immutable deployable artifact. When external research is configured, Polyloop also creates an `external-researcher` tool window for its interactive CLI. The strategy manager owns campaigns and executes one experiment at a time; Polyloop does not create experiments or impose an experiment count.
 
+The evidence sequence is: campaign objective, pre-registered experiment, immutable strategy candidate, independent offline verification, immutable paper-bot artifact, paper observation, manager decision, retrospective, and archived evidence. The strategy must be built before it can be verified; the paper bot is built only after the strategy passes offline verification.
+
 ## Requirements
 
 - Python 3.11 or newer
@@ -133,7 +135,7 @@ Polyloop launches that exact command in a dedicated `external-researcher` tmux w
 
 ## Strategy Compute
 
-`strat-builder` and `strat-verifier` both use the manager-assigned isolated EC2 strategy-compute instance. Its Name is per-experiment and SHA/loop-suffixed, and it must carry `PolyLoopRole=strategy-compute`; unsuffixed shared strategy instances are not used. The current experiment records its exact Name, `PolyLoopId`, instance ID, region, baseline AMI, evaluator identity, data checksums, separate remote workspaces, one S3 experiment prefix, and separate artifact subprefixes. Builder creates and remotely proves the immutable candidate Git SHA; Manager records it before dispatching Verifier. Verifier starts from a clean independent checkout of that same SHA and regenerates the canonical outputs. They run sequentially, upload durable artifacts, stop the instance after each assignment, and record proof that it reached `stopped`.
+`strat-builder` and `strat-verifier` both use the manager-assigned isolated EC2 strategy-compute instance. Its Name is per-experiment and SHA/loop-suffixed, and it must carry `PolyLoopRole=strategy-compute`; unsuffixed shared strategy instances are not used. The current experiment records its exact Name, `PolyLoopId`, instance ID, region, baseline AMI, evaluator identity, data checksums, separate remote workspaces, one S3 experiment prefix, and separate artifact subprefixes. Builder creates and remotely proves the immutable candidate Git SHA; Manager records it before dispatching Verifier. Verifier starts from a clean independent checkout of that same SHA and regenerates the canonical outputs. They run sequentially, resolve the current endpoint from the instance ID instead of a cached alias, upload durable artifacts, request stop through the AWS control plane, independently confirm `stopped`, and record lifecycle and cleanup evidence.
 
 Polyloop injects this contract but does not start EC2 automatically or store AWS credentials. The manager and roles use the strategy project's approved AWS procedure.
 
@@ -148,6 +150,8 @@ Both panes are local control agents; heavy integration tests, builds, and paper 
 `AGENTS.md` is the workspace-wide Codex contract. The files in `roles/` are the authoritative function contracts. On launch, Polyloop reads `roles/shared.md` and the function-specific role file and injects that content using the provider's supported context mechanism. Workers are then told to read the current project and campaign files and wait for a finite assignment.
 
 The assignment, function Results, decision, and retrospective belong in `CURRENT_EXPERIMENT.md`; tmux messages should only wake the relevant function or report completion with the new file SHA-256. Before the manager replaces the current experiment, it preserves that experiment as `experiments/E####.md`. Polyloop counts unique experiment IDs from the current record and historical records regardless of status or decision; it never increments, limits, or controls them.
+
+An experiment may contain several meaningful Git commits without committing every evaluator invocation: freeze the evaluation contract before Builder work, commit the immutable candidate before Verifier work, preserve finalized verifier evidence, commit the immutable bot artifact before paper deployment, and commit the archived record and accepted lessons at final disposition. A locked holdout is a one-read Verifier resource, not development data. Strategy specifications and evidence manifests are machine-readable so a result does not depend on a pane transcript or mutable provider memory.
 
 ## Campaign Goals
 

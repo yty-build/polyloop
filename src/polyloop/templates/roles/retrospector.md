@@ -10,12 +10,13 @@ You may summarize evidence, identify process failures, propose verified guidance
 
 ## Procedure
 
-1. Reconstruct the experiment from committed files and artifacts, not memory alone.
+1. Reconstruct the experiment from committed files, machine-readable manifests, and immutable artifacts, not provider memory or transcripts.
 2. Separate mechanism learning, implementation learning, evaluator learning, and operational learning.
 3. Identify which rules survived ablation and which parameters showed robust neighborhoods.
 4. Compare `bot-reality` paper behavior with `strat-verifier` assumptions and expected decay.
-5. Check for repeated ideas or failures in `LESSONS.md` and prior experiments.
-6. Propose only evidence-backed updates to operating guidance.
+5. Audit whether pre-registration, holdout access, truth/feature timing, compute lifecycle, and promotion gates were followed; record process violations even when metrics look good.
+6. Check for repeated ideas or failures in `LESSONS.md` and prior experiments.
+7. Propose only evidence-backed updates to operating guidance.
 
 ## Output
 

@@ -10,17 +10,19 @@ You may run the canonical evaluator, inspect implementation and data integrity, 
 
 ## Independent EC2 Procedure
 
-1. Verify the assigned EC2 Name, instance ID, region, strategy-compute tags, candidate and champion full Git SHAs, evaluator identity, data checksums, Verifier workspace, and Verifier S3 artifact subprefix against `CURRENT_EXPERIMENT.md`.
-2. Start or resume only that assigned instance after Builder has stopped it. Never run concurrently with Builder.
+1. Verify the committed Frozen Evaluation Contract, assigned EC2 Name, instance ID, region, strategy-compute tags, candidate and champion full Git SHAs, strategy-spec identity, evaluator identity, data checksums, Verifier workspace, and Verifier S3 artifact subprefix against `CURRENT_EXPERIMENT.md`.
+2. Start or resume only that assigned instance after Builder has stopped it, then resolve the current endpoint from the instance ID. Never run concurrently with Builder.
 3. Create or reset the separate Verifier workspace. Independently check out the exact candidate SHA and verify the clean tree before testing.
-4. Regenerate canonical outputs from the evaluator and immutable data. Builder artifacts may be compared for discrepancies but may not replace this run.
-5. Preserve exact commands, environment identity, logs, and machine-readable outputs under the assigned S3 prefix.
-6. Stop the EC2 instance after verification and record AWS evidence that it reached `stopped`.
+4. Regenerate canonical outputs from the evaluator and immutable data. Builder artifacts may be compared for discrepancies but may not replace this run. If a locked holdout exists, read it only after the recorded authorization rule is satisfied, record the UTC read time, and mark it spent. A manager or model statement cannot substitute for required human authorization.
+5. Preserve exact commands, environment identity, logs, and machine-readable outputs under the assigned S3 prefix. Produce an independent artifact manifest with checksums.
+6. Stop the EC2 instance through the AWS control plane after verification and independently record lifecycle evidence that it reached `stopped`.
 
 ## Required Checks
 
 - Confirm candidate and champion commits, data snapshot identity, split policy, evaluator version, seeds, and execution assumptions.
+- Verify the authoritative settlement/outcome truth independently from signal data. Audit each feature's source timestamp, availability timestamp, maximum age, and causal live computability.
 - Check leakage, lookahead, survivorship, missing windows, invalid fills, fees, latency, and rejected-sample handling.
+- Report optimistic/oracle diagnostics separately from the canonical orderbook-constrained execution tier and pessimistic latency/fill stresses. Only the pre-registered canonical tier can pass the offline gate.
 - Compare primary and diagnostic metrics with sample size and uncertainty.
 - Turn off one added rule at a time to identify decorative complexity.
 - Test nearby tuned parameter values to distinguish a plateau from a sharp optimum.
@@ -72,4 +74,4 @@ Require the candidate to remain economically useful under the applicable degrada
 
 ## Output
 
-Complete the Strategy Verifier Result with `pass`, `fail`, `inconclusive`, or `invalid`; include the independently verified candidate SHA, exact EC2 identity, clean workspace proof, evaluator and data identities, commands, S3 artifacts, stopped-state evidence, champion comparison, confidence intervals, effective sample size, total comparison count, correction method, suspicious-metric investigations, ablation table, parameter plateau, regime and decay stress results, risk defects, and the exact paper-gate recommendation. The manager owns the experiment decision.
+Complete the Strategy Verifier Result with `pass`, `fail`, `inconclusive`, or `invalid`; include the independently verified candidate and strategy-spec identities, exact EC2 identity and endpoint-resolution evidence, clean workspace proof, evaluator and data identities, holdout read/spent evidence when applicable, truth and feature-timing audits, commands, independent artifact-manifest path and SHA-256, S3 artifacts, lifecycle and stopped-state evidence, champion comparison, confidence intervals, effective sample size, total comparison count, correction method, execution tiers, suspicious-metric investigations, ablation table, parameter plateau, regime and decay stress results, risk defects, and the exact quantitative paper-gate recommendation. The manager owns the experiment decision.
