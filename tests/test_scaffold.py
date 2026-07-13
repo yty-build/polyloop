@@ -42,6 +42,8 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
     assert "Validator Result" in current_experiment
     assert "Bot Builder Result" in current_experiment
     assert "Reality Result" in current_experiment
+    assert "Git Stage History" in current_experiment
+    assert "Real-money window Result commits" in current_experiment
     assert "Experiment Test full Git SHA" in current_experiment
     assert "strat-compute-<first 12 characters" in current_experiment
     assert "Data Validator will independently use" in current_experiment
@@ -64,10 +66,14 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
     assert "checksum manifest" in builder
     shared = (tmp_path / "roles" / "shared.md").read_text(encoding="utf-8")
     assert "exactly 2 or 3 windows" in shared
-    assert "does not need one commit for every test invocation" in shared
+    assert "Git is the durable stage ledger, not an activity log" in shared
+    assert "Each approved real-money window Result" in shared
+    assert "Do not commit `started`, `running`" in shared
     manager = (tmp_path / "roles" / "manager.md").read_text(encoding="utf-8")
     assert "repeatedly run experiments through Builder and Validator" in manager
     assert "No model may invent or infer this approval" in manager
+    assert "Wake Reality for one approved window at a time" in manager
+    assert "git status --porcelain" in manager
     bot_builder = (tmp_path / "roles" / "bot-builder.md").read_text(encoding="utf-8")
     assert "Before changing bot code, write a short plan" in bot_builder
     assert "cancel-response ambiguity" in bot_builder

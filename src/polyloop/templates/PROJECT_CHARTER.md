@@ -26,6 +26,8 @@ Before Builder starts, commit the exact Experiment Test: metric and minimum impr
 
 Every strategy, bot, Validator run, paper run, and real run must have immutable Git identities where applicable and machine-readable checksum manifests.
 
+Git records completed stage boundaries, not every activity. Manager commits the Council Result, frozen Experiment Test, Builder Result, Validator Result and decision, Bot Builder Result, paper Result, exact human real-money approval, each real-money window Result, and final Retrospective/archive before advancing. Manager also commits campaign activation, pause, resume, and completion. Do not advance from a dirty shared worktree, and do not rewrite a boundary commit after downstream work begins.
+
 ## Strategy Compute And S3
 
 Run heavy Builder and Validator work only on the Manager-assigned AWS EC2 instance named `strat-compute-<12-character Experiment Test Git SHA>` and tagged `PolyLoopRole=strategy-compute`. Record the instance ID, region, AMI, tags, and endpoint-resolution evidence. Never use an unsuffixed shared instance or cached alias.

@@ -184,7 +184,9 @@ If paper matches, a real-money test requires explicit human approval containing 
 
 Detailed assignments and Results live in `CURRENT_EXPERIMENT.md`. Tmux messages carry only wake-ups and completion notifications with the expected file SHA-256. Before another hypothesis starts, Manager archives the record under `experiments/` and commits evidence and lessons.
 
-An experiment can have meaningful commits for the Experiment Test, strategy, Validator Result, bot, and final record. It does not need a commit for every test invocation.
+Git is the stage ledger. Manager commits the Council Result, frozen Experiment Test, Builder Result, Validator Result and decision, Bot Builder Result, paper Result, exact human real-money approval, each real-money window, and final Retrospective/archive before advancing. Campaign activation, pause, resume, and completion are also committed. Builder and Bot Builder may create immutable strategy and bot artifact commits, but Manager owns lifecycle advancement.
+
+This is not a commit-per-edit design. Repeated test invocations, commands, heartbeats, tmux messages, incremental logs, and transient `started` or `running` states stay out of Git; their final manifests and Results enter the next required stage commit. The shared worktree must be clean before the next function is dispatched.
 
 ## Parallel Strategies
 

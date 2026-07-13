@@ -58,6 +58,8 @@ Manager runs one experiment at a time:
 
 `CURRENT_EXPERIMENT.md` is the single live experiment record. Each function verifies the expected file SHA-256, writes only its Result, and returns the new SHA-256. Tmux carries only short wake-up and completion messages.
 
+Manager commits every completed evidence-bearing stage before dispatching the next one: Council Result, Experiment Test, Builder Result, Validator Result and decision, Bot Builder Result, paper Result, exact human real-money approval, each real-money window, and final Retrospective/archive. Campaign activation, pause, resume, and completion are also committed. Transient status edits, commands, heartbeats, tmux messages, incremental logs, and repeated test invocations are not commits. The shared worktree must be clean before every dispatch.
+
 ## Experiment Compute And S3
 
 Builder and Validator use the same isolated EC2 instance sequentially with separate clean workspaces. Its Name is exactly `strat-compute-<12-character Experiment Test Git SHA>`, it carries `PolyLoopRole=strategy-compute`, and its endpoint is resolved from the instance ID after every start. Never use an unsuffixed shared instance or cached SSH alias.

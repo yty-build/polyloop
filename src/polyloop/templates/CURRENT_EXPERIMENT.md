@@ -91,6 +91,20 @@ No decision yet. Manager records `reject`, `inconclusive`, `blocked`, or `stage1
 
 No retrospective yet.
 
+## Git Stage History
+
+Before final archive, list the full Git SHAs for the Council Result, Experiment Test, Builder Result, Validator Result and decision, Bot Builder Result when applicable, paper Result, exact human approval when applicable, every real-money window, and final pre-archive decision. Use `not applicable` for stages that were correctly skipped. Git history for the archived experiment file identifies the final archive commit; a commit cannot contain its own SHA.
+
+- Council Result commit: `not assigned`
+- Experiment Test commit: `not assigned`
+- Builder Result commit: `not assigned`
+- Validator Result and decision commit: `not assigned`
+- Bot Builder Result commit: `not assigned`
+- Paper Result and decision commit: `not assigned`
+- Human real-money approval commit: `not assigned`
+- Real-money window Result commits: `not assigned`
+- Final pre-archive decision commit: `not assigned`
+
 ## History
 
-Before starting another hypothesis, preserve this record as `experiments/<experiment-id>.md` and commit its evidence and lessons. `polyloop status` observes unique experiment IDs but never controls their lifecycle.
+Before starting another hypothesis, preserve this record as `experiments/<experiment-id>.md` and commit its evidence and lessons. Use stage subjects in the form `polyloop(<campaign>/<experiment>): <completed-stage>`. `polyloop status` observes unique experiment IDs but never controls their lifecycle.

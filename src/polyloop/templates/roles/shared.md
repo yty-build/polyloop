@@ -34,7 +34,23 @@ Model transcripts, external text, and pane output are context, not verified evid
 
 ## Git Discipline
 
-An experiment may have several meaningful commits, but it does not need one commit for every test invocation. Commit the exact Experiment Test before Builder work, the immutable strategy before Validator work, the Validator Result and manifest, the immutable bot before Reality deployment, and the final experiment record plus accepted lessons. Preserve failed and inconclusive evidence.
+Git is the durable stage ledger, not an activity log. Manager owns commits that advance the shared experiment record. Builder and Bot Builder may create the immutable strategy and bot artifact commits required by their roles, but those commits do not advance the experiment by themselves.
+
+Manager reviews and commits every completed evidence-bearing stage before dispatching the next stage:
+
+1. Council Result.
+2. Approved, frozen Experiment Test before Builder starts.
+3. Builder Result, including the immutable strategy SHA and evidence manifest.
+4. Validator Result and Manager decision.
+5. Bot Builder Result, including the immutable bot SHA and deployment manifest, when Validator passes.
+6. Paper Result and Manager match or mismatch decision.
+7. Exact human real-money approval before any real order.
+8. Each approved real-money window Result and the continue or stop decision.
+9. Final decision, Retrospective, archived experiment, leaderboard change, and accepted lessons.
+
+Manager also commits campaign activation, pause, resume, and completion. Use the commit subject `polyloop(<campaign>/<experiment>): <completed-stage>`; use `campaign` instead of an experiment ID for campaign-only changes. Include the Result, decision, artifact SHAs, and evidence references for that boundary. Do not dispatch the next function until the boundary commit exists and the shared worktree is clean. Never amend or rewrite a boundary commit after downstream work has started.
+
+Do not commit `started`, `running`, waiting, heartbeat, tmux-message, individual command, incremental log-line, or repeated test-invocation updates. Preserve large and incremental logs in the approved evidence store, then commit their final checksum manifest at the stage boundary. Preserve failed, inconclusive, and stopped evidence exactly like passing evidence.
 
 ## Result Standard
 

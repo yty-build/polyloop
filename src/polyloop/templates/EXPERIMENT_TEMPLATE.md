@@ -32,3 +32,7 @@ Record paper windows, comparison with Validator, logs, failures, and S3 evidence
 ## Decision And Retrospective
 
 Record Manager's decision, what moved the needle, what failed, the exact Validator or Reality constraint, reusable lessons, and the next hypothesis direction.
+
+## Git Stage History
+
+List the full Git SHAs for the Council Result, Experiment Test, Builder Result, Validator Result and decision, Bot Builder Result when applicable, paper Result, exact human approval when applicable, every real-money window, and final pre-archive decision. Use `not applicable` for correctly skipped stages. The Git commit that adds this archived file is the final archive identity.

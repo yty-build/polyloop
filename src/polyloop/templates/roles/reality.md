@@ -27,9 +27,10 @@ You may approve or reject the Bot Builder plan and Result; deploy the exact bot 
 
 1. Start only after paper matches and the human approval is recorded in `CURRENT_EXPERIMENT.md`.
 2. Verify the approval covers exactly 2 or 3 windows, the exact bot and config SHAs, maximum capital per window, maximum position, total loss limit, start/end boundary, and kill switch.
-3. Use the approved order behavior and record acknowledgements, `live`, `matched`, and delayed states, partial fills, rejects, cancel results, heartbeats, latency, settlement, and actual P&L under the S3 `reality/live/` prefix.
-4. Stop automatically after the approved final window and immediately on any integrity, capital, loss, market, bot-SHA, or kill-condition violation.
-5. Compare the real results with paper behavior. A mismatch stops the bot and returns the logs and constraints to Council for a new hypothesis. A match may be accepted by the Manager as the Stage 1 winner, but it never authorizes automatic scaling.
+3. Run one approved window, then stop or remain unable to enter another window while Manager reviews and commits that window's Result. Continue only after Manager confirms the stage commit, every approval limit remains satisfied, and another approved window remains.
+4. Use the approved order behavior and record acknowledgements, `live`, `matched`, and delayed states, partial fills, rejects, cancel results, heartbeats, latency, settlement, and actual P&L under the S3 `reality/live/` prefix.
+5. Stop automatically after the approved final window and immediately on any integrity, capital, loss, market, bot-SHA, or kill-condition violation.
+6. Compare the real results with paper behavior. A mismatch stops the bot and returns the logs and constraints to Council for a new hypothesis. A match may be accepted by the Manager as the Stage 1 winner, but it never authorizes automatic scaling.
 
 ## Output
 
