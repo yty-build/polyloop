@@ -7,36 +7,28 @@ decision = ""
 
 # Experiment Record
 
-Preserve one record for every experiment run by the strategy manager. Use a globally unique ID such as `E0001` and store the record as `experiments/E0001.md` before replacing it in `CURRENT_EXPERIMENT.md`.
+Preserve one record for every Manager-run experiment as `experiments/<experiment-id>.md` before replacing `CURRENT_EXPERIMENT.md`.
 
-## Hypothesis
+## Hypothesis And Experiment Test
 
-Record the approved falsifiable hypothesis and proposed mechanism.
+Record the hypothesis, why it should work, the committed test SHA, metric and minimum improvement, risk, Builder and Validator data, comparison count, statistics, truth source, feature timing, execution assumptions, pass/fail rules, expected Reality behavior, paper requirement, and real-window limits.
 
-## Frozen Evaluation Contract
+## Builder Result
 
-Record the pre-registration commit, primary metric and minimum useful effect, risk limits, data splits, locked-holdout state and read timestamp, search budget, statistical correction, truth source, feature-availability rules, execution tiers, and quantitative paper gate. This contract must predate Builder work; a material post-result change creates a new experiment.
+Record the strategy commit and spec, changed files, tests, EC2 identity, commands, experiment metrics, S3 manifest, and stopped-state evidence.
 
-## Evidence Manifest
+## Validator Result
 
-Record the machine-readable strategy-spec and artifact-manifest paths and SHA-256 values. The manifest must bind data, evaluator, environment, commands, outputs, and compute lifecycle evidence.
+Record the independent `pass`, `fail`, `inconclusive`, or `invalid` result, winner comparison, integrity checks, rule removal, parameter stability, statistics, Reality expectations, S3 manifest, and stopped-state evidence.
 
-## Implementation
+## Bot Builder Result
 
-Record the candidate commit, configuration, changed files, tests, and reproduction command.
+For Validator passes, record the reviewed plan, immutable bot commit, parity and failure tests, deployment manifest, and S3 evidence. State when no bot was built.
 
-## Offline Verification
+## Reality Result
 
-Record canonical evaluator inputs, outputs, champion comparison, holdout-read and spent-state evidence, outcome-truth and feature-availability audits, execution tiers, leakage checks, ablations, parameter-neighborhood checks, and limitations.
-
-## Bot Integration
-
-Record the offline-approved strategy commit, immutable bot commit, adapter changes, strategy-to-bot parity evidence, smoke tests, deployment manifest, and unresolved translation risks. State when the candidate failed before this gate.
-
-## Paper Evidence
-
-Record paper run identifiers, valid and excluded market windows, raw log and artifact-manifest references, observed execution drift, quantitative gate checks, and integrity checks. State when the candidate failed before this gate.
+Record paper windows, comparison with Validator, logs, failures, and S3 evidence. When paper matches and human approval exists, record the exact 2-3 real-money window approval, orders, fills, latency, rejects, partials, cancels, heartbeat behavior, settlement, actual P&L, stops, and S3 evidence.
 
 ## Decision And Retrospective
 
-Record the manager's decision or current disposition, evidence-based reasoning, reusable learning, failed assumptions, and campaign follow-ups.
+Record Manager's decision, what moved the needle, what failed, the exact Validator or Reality constraint, reusable lessons, and the next hypothesis direction.

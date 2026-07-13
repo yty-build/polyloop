@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .config import ProjectConfig
 from .constants import (
-    BOT_INTEGRATOR_ROLE,
+    BOT_BUILDER_ROLE,
     EXTERNAL_RESEARCHER_WINDOW,
     FUNCTION_BY_ROLE,
     LEGACY_FUNCTION_NAMES,
@@ -315,17 +315,17 @@ def ensure_tmux_session(
         )
         role_panes[role_name] = pane
 
-    reality_pane = role_panes["bot-reality"]
-    reality_panes = _window_panes(tmux.list_panes(config.session), "bot-reality")
-    bot_integrator_pane = _find_function_pane(reality_panes, BOT_INTEGRATOR_ROLE)
-    if bot_integrator_pane is None:
+    reality_pane = role_panes["reality"]
+    reality_panes = _window_panes(tmux.list_panes(config.session), "reality")
+    bot_builder_pane = _find_function_pane(reality_panes, BOT_BUILDER_ROLE)
+    if bot_builder_pane is None:
         unclaimed = [
             pane
             for pane in reality_panes
             if not pane.function_marker and pane.pane_id != reality_pane.pane_id
         ]
         if unclaimed:
-            bot_integrator_pane = min(unclaimed, key=lambda pane: pane.index)
+            bot_builder_pane = min(unclaimed, key=lambda pane: pane.index)
         else:
             existing_ids = {pane.pane_id for pane in reality_panes}
             tmux.run(
@@ -339,29 +339,27 @@ def ensure_tmux_session(
             )
             new_panes = [
                 pane
-                for pane in _window_panes(
-                    tmux.list_panes(config.session), "bot-reality"
-                )
+                for pane in _window_panes(tmux.list_panes(config.session), "reality")
                 if pane.pane_id not in existing_ids
             ]
             if len(new_panes) != 1:
                 raise TmuxError(
-                    "could not identify the new bot-integrator pane in the bot-reality window"
+                    "could not identify the new bot-builder pane in the reality window"
                 )
-            bot_integrator_pane = new_panes[0]
-            result.created_panes.append("bot-reality:bot-integrator")
+            bot_builder_pane = new_panes[0]
+            result.created_panes.append("reality:bot-builder")
             tmux.run(
                 "select-layout",
                 "-t",
-                f"{config.session}:bot-reality",
+                f"{config.session}:reality",
                 "even-horizontal",
             )
         tmux.set_pane_option(
-            bot_integrator_pane.pane_id,
+            bot_builder_pane.pane_id,
             "@polyloop_function",
-            BOT_INTEGRATOR_ROLE,
+            BOT_BUILDER_ROLE,
         )
-    role_panes[BOT_INTEGRATOR_ROLE] = bot_integrator_pane
+    role_panes[BOT_BUILDER_ROLE] = bot_builder_pane
     tmux.run("select-pane", "-t", reality_pane.pane_id)
 
     pane_targets = {

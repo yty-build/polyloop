@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .config import ProjectConfig
 from .constants import (
-    BOT_INTEGRATOR_ROLE,
+    BOT_BUILDER_ROLE,
     EXTERNAL_RESEARCHER_WINDOW,
     FUNCTION_BY_ROLE,
     ROLE_FUNCTIONS,
@@ -112,9 +112,7 @@ def build_status_report(
             healthy = False
         if pane is None or pane.dead:
             healthy = False
-        expected_window = (
-            "bot-reality" if role_name == BOT_INTEGRATOR_ROLE else role_name
-        )
+        expected_window = "reality" if role_name == BOT_BUILDER_ROLE else role_name
         if pane and pane.window_name != expected_window:
             warnings.append(
                 f"{function_name} is in window {pane.window_name}, expected "

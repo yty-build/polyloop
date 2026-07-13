@@ -1,40 +1,50 @@
 from __future__ import annotations
 
-__version__ = "0.8.0"
+__version__ = "0.9.0"
 
 ROLES = (
     "manager",
-    "strat-council",
-    "strat-builder",
-    "strat-verifier",
-    "bot-reality",
+    "council",
+    "builder",
+    "validator",
+    "reality",
     "retrospector",
 )
 
-BOT_INTEGRATOR_ROLE = "bot-integrator"
+BOT_BUILDER_ROLE = "bot-builder"
 ROLE_FUNCTIONS = (
     "manager",
-    "strat-council",
-    "strat-builder",
-    "strat-verifier",
-    "bot-reality",
-    BOT_INTEGRATOR_ROLE,
+    "council",
+    "builder",
+    "validator",
+    "reality",
+    BOT_BUILDER_ROLE,
     "retrospector",
 )
 FUNCTION_BY_ROLE = {role: role for role in ROLE_FUNCTIONS}
 
 LEGACY_ROLE_NAMES = {
+    "council": ("strat-council",),
+    "builder": ("strat-builder",),
+    "validator": ("strat-verifier", "verifier"),
+    "reality": ("bot-reality",),
+    BOT_BUILDER_ROLE: ("bot-integrator",),
+}
+LEGACY_WINDOW_NAMES = {
     "strat-council": "council",
     "strat-builder": "builder",
-    "strat-verifier": "verifier",
+    "strat-verifier": "validator",
+    "verifier": "validator",
     "bot-reality": "reality",
 }
-LEGACY_WINDOW_NAMES = {legacy: current for current, legacy in LEGACY_ROLE_NAMES.items()}
 LEGACY_FUNCTION_NAMES = {
-    "council": "strat-council",
-    "builder": "strat-builder",
-    "verifier": "strat-verifier",
-    "reality-controller": "bot-reality",
+    "strat-council": "council",
+    "strat-builder": "builder",
+    "strat-verifier": "validator",
+    "verifier": "validator",
+    "bot-reality": "reality",
+    "reality-controller": "reality",
+    "bot-integrator": BOT_BUILDER_ROLE,
 }
 
 EXTERNAL_RESEARCHER_WINDOW = "external-researcher"

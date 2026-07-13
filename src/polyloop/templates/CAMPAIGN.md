@@ -6,43 +6,58 @@ auto_start = false
 
 # Current Campaign
 
-The strategy manager owns this campaign record. Polyloop does not create experiments, impose an experiment limit, advance stages, or decide when the campaign is complete.
+Manager owns this campaign. Polyloop creates the workspace and tmux functions but does not create experiments, limit their count, advance them, or decide when the campaign is complete.
 
 ## Activation
 
-Keep `status = "draft"` and `auto_start = false` while required seed fields are missing. After the seed is complete, set `status = "ready"` and `auto_start = true` to let the next manager launch validate this record and directly create its provider-native finite goal. Use `status = "paused"` to freeze the campaign; paused and completed campaigns never auto-start.
+Keep `status = "draft"` and `auto_start = false` while required fields are missing. Set `status = "ready"` and `auto_start = true` only after this seed is complete. Use `status = "paused"` to freeze the campaign. Paused and completed campaigns never auto-start.
 
-## Campaign Objective
+## Campaign Goal
 
 $objective
 
 ## Starting Evidence
 
-- Champion and immutable commit: `not assigned`
-- Authoritative data snapshot: `not assigned`
-- Canonical evaluator: `not assigned`
-- Relevant market-level lessons: `not assigned`
+- Current winner and immutable commit: `not assigned`
+- Authoritative data snapshot and checksums: `not assigned`
+- Experiment tester and version or Git SHA: `not assigned`
+- Relevant lessons and failed experiments: `not assigned`
+
+## AWS And S3
+
+- AWS account and region: `not assigned`
+- Baseline strategy-compute AMI: `not assigned`
+- Approved S3 bucket: `not assigned`
+- Approved paper and real-test host: `not assigned`
+- EC2 and S3 cleanup deadline: `not assigned`
+
+## Reality Limits
+
+- Required paper windows or duration: `not assigned`
+- Approved real-money window count (`2` or `3`): `not assigned`
+- Maximum capital per real window: `not assigned`
+- Maximum position and total loss: `not assigned`
+- Start/end boundary and kill conditions: `not assigned`
+- Human approval rule: `not assigned`
 
 ## Resource Boundary
 
 - Time or usage budget: `not assigned`
-- Paper-observation requirement: `not assigned`
 - Operational constraints: `not assigned`
+- Safety constraints: `not assigned`
 
 ## Stop Conditions
 
-The strategy manager must stop and return control when the campaign objective is achieved, its resource boundary is reached, evidence is blocked or unsafe, or no materially new falsifiable hypothesis remains.
+Manager stops when a Stage 1 winner matches paper in the approved real windows, resources are exhausted, evidence is blocked or unsafe, or no materially new hypothesis remains.
 
 ## Manager Goal Primer
 
-Use this as the basis for the manager's native `/goal` after completing this record:
-
-> Run the current campaign under CAMPAIGN.md and PROJECT_CHARTER.md. Select and execute one falsifiable experiment at a time. Continue only while another experiment is materially useful to the campaign objective and remains inside its resource and safety boundaries. Stop under the recorded campaign stop conditions and leave a closeout; do not silently begin another campaign.
+> Run the current campaign under CAMPAIGN.md and PROJECT_CHARTER.md. Test one hypothesis at a time through Builder and Validator. Continue with new experiments until Validator confirms one moves the needle. Then build the bot, gather paper evidence, and only with exact human approval run 2-3 real-money windows. If paper or real behavior does not match, stop, record the Reality constraint, and return to Council for a new hypothesis. Stop when a Stage 1 winner is confirmed or a campaign stop condition is reached. Never scale automatically.
 
 ## Campaign Learning
 
-Summarize patterns that apply to this campaign. Promote a lesson to the market-level `LESSONS.md` only when its evidence justifies reuse beyond this campaign.
+Summarize experiment, Validator, paper, and real-market patterns for this campaign. Add only reusable evidence to `LESSONS.md`.
 
 ## Closeout
 
-At completion, record the final champion, experiments run, rejected mechanisms, unresolved risks, resource use, and ranked follow-ups. Preserve this record under `campaigns/<campaign-id>.md`, then reset `CAMPAIGN.md` before another campaign is activated.
+At completion, record the Stage 1 winner or failure state, experiments run, rejected hypotheses, Validator findings, Reality constraints, resources used, unresolved risks, and ranked follow-ups. Preserve this record under `campaigns/<campaign-id>.md`.

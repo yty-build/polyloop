@@ -1,12 +1,11 @@
 # Strategy Leaderboard
 
-Only independently verified candidates belong here. Rank by the charter's primary metric while showing sample size, uncertainty, drawdown, execution assumptions, and paper evidence.
+Only Validator-tested strategies belong here. Show whether each strategy reached bot, paper, and the approved 2-3 real-money windows.
 
-| Rank | Strategy | Commit | Offline Evidence | Paper Evidence | Decision |
-| ---: | --- | --- | --- | --- | --- |
-| 1 | Unverified baseline | Not recorded | Missing | Missing | Baseline only |
+| Rank | Strategy | Commit | Validator Result | Paper Result | 2-3 Real Windows | Decision |
+| ---: | --- | --- | --- | --- | --- | --- |
+| 1 | Unverified baseline | Not recorded | Missing | Missing | Missing | Baseline only |
 
-## Promotion Rule
+## Winner Rule
 
-A challenger replaces the champion only when the manager confirms that the immutable candidate passed canonical offline verification and the required paper-only evidence gate. A higher point estimate without robust evidence is not a promotion.
-
+A strategy becomes the Stage 1 winner only when Validator confirms the experiment, paper matches the confirmed Result, and the explicitly approved 2-3 real-money windows match paper behavior. A high experiment score alone is not a winner, and passing real windows never authorizes automatic scaling.

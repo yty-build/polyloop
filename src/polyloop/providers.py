@@ -5,7 +5,7 @@ import shutil
 
 from .config import ProjectConfig, RoleConfig
 from .constants import (
-    BOT_INTEGRATOR_ROLE,
+    BOT_BUILDER_ROLE,
     EXTERNAL_RESEARCHER_WINDOW,
     FUNCTION_BY_ROLE,
 )
@@ -112,21 +112,17 @@ def load_role_context(
     if role_name == "manager" and pane_targets:
         context += (
             "\n# Manager Team Runtime\n\n"
-            f"Strategy council pane: {pane_targets['strat-council']} - ranked hypotheses and "
+            f"Council pane: {pane_targets['council']} - ranked hypotheses and "
             "external-research requests\n"
-            f"Strategy builder pane: {pane_targets['strat-builder']} - approved strategy "
-            "implementation\n"
-            f"Strategy verifier pane: {pane_targets['strat-verifier']} - independent "
-            "canonical offline Result\n"
-            f"Bot reality pane: "
-            f"{pane_targets['bot-reality']} - bot integration, "
-            "deployment, and paper Result\n"
-            f"Bot integrator pane: {pane_targets[BOT_INTEGRATOR_ROLE]} - directed "
-            "only by bot-reality\n"
+            f"Builder pane: {pane_targets['builder']} - approved experiment build and test\n"
+            f"Validator pane: {pane_targets['validator']} - independent experiment Result\n"
+            f"Reality pane: {pane_targets['reality']} - paper and approved 2-3-window "
+            "real-world Result\n"
+            f"Bot builder pane: {pane_targets[BOT_BUILDER_ROLE]} - directed only by reality\n"
             f"Retrospector pane: {pane_targets['retrospector']} - learning after "
             "the manager decision\n"
             f"External researcher window: {config.session}:"
-            f"{EXTERNAL_RESEARCHER_WINDOW} - requested only through strat-council\n\n"
+            f"{EXTERNAL_RESEARCHER_WINDOW} - requested only through council\n\n"
             "Before waking a function, compute the SHA-256 of "
             "CURRENT_EXPERIMENT.md and include it in the short message. Send text "
             "and Enter with two separate commands: first "
@@ -136,7 +132,7 @@ def load_role_context(
             "after writing its named section.\n"
         )
     researcher = config.external_researcher
-    if role_name == "strat-council" and researcher:
+    if role_name == "council" and researcher:
         target = f"{config.session}:{EXTERNAL_RESEARCHER_WINDOW}"
         context += (
             "\n# External Researcher Runtime\n\n"
@@ -144,37 +140,36 @@ def load_role_context(
             f"Provider: {researcher.provider}\n"
             f"Window target: {target}\n"
             f"Command launched by Polyloop: {shlex.join(researcher.command)}\n\n"
-            "Do not run the researcher command from this strat-council process. It is an "
+            "Do not run the researcher command from this council process. It is an "
             "interactive CLI already running in the dedicated tmux window. Send only "
             "the simple question 'What do X and the internet say about <topic>?' to "
             "the window target with tmux send-keys, then inspect that same pane with "
             "tmux capture-pane after the response finishes.\n"
         )
-    if role_name in {"bot-reality", BOT_INTEGRATOR_ROLE} and pane_targets:
-        controller_target = pane_targets["bot-reality"]
-        integrator_target = pane_targets[BOT_INTEGRATOR_ROLE]
+    if role_name in {"reality", BOT_BUILDER_ROLE} and pane_targets:
+        reality_target = pane_targets["reality"]
+        builder_target = pane_targets[BOT_BUILDER_ROLE]
         context += (
             "\n# Reality Team Runtime\n\n"
-            f"Bot reality pane: {controller_target}\n"
-            f"Bot integrator pane: {integrator_target}\n\n"
+            f"Reality pane: {reality_target}\n"
+            f"Bot builder pane: {builder_target}\n\n"
             "For every cross-pane message, use two separate commands: first "
             "`tmux send-keys -t <target> -l -- '<message>'`, then "
             "`tmux send-keys -t <target> Enter`. Never combine the text and Enter "
             "in one tmux command; that can leave the message typed but unsubmitted.\n\n"
         )
-        if role_name == "bot-reality":
+        if role_name == "reality":
             context += (
-                "You own this two-pane team. After an offline pass, put the detailed "
-                "integration assignment in CURRENT_EXPERIMENT.md and send only a short "
-                "wake-up message to the bot integrator pane. Do not implement bot code. "
-                "Review its immutable Result before any paper deployment.\n"
+                "You own this two-pane team. After Validator confirmation, put the detailed "
+                "bot assignment in CURRENT_EXPERIMENT.md and send only a short wake-up "
+                "message to the bot-builder pane. Do not implement bot code. Review its "
+                "immutable Result before paper testing.\n"
             )
         else:
             context += (
-                "Accept assignments only from bot-reality for the current "
-                "offline-approved experiment. Record the detailed Result in "
-                "CURRENT_EXPERIMENT.md and notify the bot-reality pane when complete. "
-                "Do not deploy or operate the bot.\n"
+                "Accept assignments only from reality for the current Validator-confirmed "
+                "experiment. Record the detailed Result in CURRENT_EXPERIMENT.md and "
+                "notify the reality pane when complete. Do not deploy or operate the bot.\n"
             )
     return context
 
@@ -200,7 +195,8 @@ def startup_prompt(role_name: str, provider: str = "codex") -> str:
             "If and only if activation is eligible, read AGENTS.md, PROJECT_CHARTER.md, "
             "the full CAMPAIGN.md, CURRENT_EXPERIMENT.md, LEADERBOARD.md, and LESSONS.md. "
             "Validate its finite objective, stopping conditions, starting evidence, "
-            "evaluator, paper requirement, resource boundary, and safety limits. "
+            "experiment test, paper requirement, approved 2-3-window reality limit, "
+            "resource boundary, and safety limits. "
             + native_goal
             + "Use the Manager Goal Primer as the objective, mark a ready campaign active "
             "after the goal is attached, and begin the manager loop. If validation fails, "

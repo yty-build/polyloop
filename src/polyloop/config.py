@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .constants import (
-    BOT_INTEGRATOR_ROLE,
+    BOT_BUILDER_ROLE,
     EFFORT_LEVELS,
     LEGACY_ROLE_NAMES,
     PROVIDERS,
@@ -95,17 +95,19 @@ def load_config(root: Path) -> ProjectConfig:
 
     roles: dict[str, RoleConfig] = {}
     for role_name in ROLE_FUNCTIONS:
-        role_raw = roles_raw.get(role_name)
-        legacy_name = LEGACY_ROLE_NAMES.get(role_name)
-        if role_raw is not None and legacy_name and legacy_name in roles_raw:
+        legacy_names = LEGACY_ROLE_NAMES.get(role_name, ())
+        configured_names = [
+            name for name in (role_name, *legacy_names) if name in roles_raw
+        ]
+        if len(configured_names) > 1:
             raise ConfigError(
-                f"configure only [roles.{role_name}] or [roles.{legacy_name}], not both"
+                "configure only one of "
+                + ", ".join(f"[roles.{name}]" for name in configured_names)
             )
-        if role_raw is None and legacy_name:
-            role_raw = roles_raw.get(legacy_name)
+        role_raw = roles_raw.get(configured_names[0]) if configured_names else None
         inherited = False
-        if role_name == BOT_INTEGRATOR_ROLE and role_raw is None:
-            role_raw = roles_raw.get("bot-reality") or roles_raw.get("reality")
+        if role_name == BOT_BUILDER_ROLE and role_raw is None:
+            role_raw = roles_raw.get("reality") or roles_raw.get("bot-reality")
             inherited = True
         if not isinstance(role_raw, dict):
             raise ConfigError(f"missing [roles.{role_name}] table")
@@ -137,7 +139,9 @@ def load_config(root: Path) -> ProjectConfig:
             extra_args=tuple(extra_args_raw),
         )
 
-    accepted_roles = set(ROLE_FUNCTIONS) | set(LEGACY_ROLE_NAMES.values())
+    accepted_roles = set(ROLE_FUNCTIONS)
+    for legacy_names in LEGACY_ROLE_NAMES.values():
+        accepted_roles.update(legacy_names)
     unknown_roles = sorted(set(roles_raw) - accepted_roles)
     if unknown_roles:
         raise ConfigError(f"unknown role tables: {', '.join(unknown_roles)}")
@@ -165,12 +169,12 @@ def write_default_config(
     notes_file = os.environ.get("POLYLOOP_NOTES_FILE", "~/.tmux-notes")
     effort_by_role = {
         "manager": "high",
-        "strat-council": "high",
-        "strat-builder": "high",
-        "strat-verifier": "high",
-        "bot-reality": "high",
+        "council": "high",
+        "builder": "high",
+        "validator": "high",
+        "reality": "high",
         "retrospector": "high",
-        BOT_INTEGRATOR_ROLE: "high",
+        BOT_BUILDER_ROLE: "high",
     }
 
     lines = [
@@ -185,11 +189,11 @@ def write_default_config(
     ]
     tmux_roles = {
         "manager",
-        "strat-council",
-        "strat-builder",
-        "strat-verifier",
-        "bot-reality",
-        BOT_INTEGRATOR_ROLE,
+        "council",
+        "builder",
+        "validator",
+        "reality",
+        BOT_BUILDER_ROLE,
     }
     for role in ROLE_FUNCTIONS:
         extra_args = (

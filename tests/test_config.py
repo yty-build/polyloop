@@ -25,12 +25,12 @@ def test_default_config_round_trip(
     assert "[campaign]" not in (tmp_path / "polyloop.toml").read_text(encoding="utf-8")
     assert set(config.roles) == {
         "manager",
-        "strat-council",
-        "strat-builder",
-        "strat-verifier",
-        "bot-reality",
+        "council",
+        "builder",
+        "validator",
+        "reality",
         "retrospector",
-        "bot-integrator",
+        "bot-builder",
     }
     assert all(role.provider == "codex" for role in config.roles.values())
     assert config.external_researcher is not None
@@ -38,15 +38,15 @@ def test_default_config_round_trip(
     assert config.external_researcher.command == ("grok", "--yolo")
     assert (
         "sandbox_workspace_write.network_access=true"
-        in config.roles["strat-builder"].extra_args
+        in config.roles["builder"].extra_args
     )
     assert (
         "sandbox_workspace_write.network_access=true"
-        in config.roles["strat-verifier"].extra_args
+        in config.roles["validator"].extra_args
     )
 
 
-def test_config_inherits_bot_reality_settings_for_bot_integrator(
+def test_config_inherits_reality_settings_for_bot_builder(
     tmp_path: Path,
 ) -> None:
     path = write_default_config(
@@ -56,18 +56,18 @@ def test_config_inherits_bot_reality_settings_for_bot_integrator(
         provider="codex",
     )
     content = path.read_text(encoding="utf-8")
-    start = content.index("\n[roles.bot-integrator]")
+    start = content.index("\n[roles.bot-builder]")
     end = content.index("\n[roles.retrospector]", start)
     path.write_text(content[:start] + content[end:], encoding="utf-8")
 
     config = load_config(tmp_path)
 
-    assert config.roles["bot-integrator"].provider == "codex"
+    assert config.roles["bot-builder"].provider == "codex"
     assert (
         "sandbox_workspace_write.network_access=true"
-        in config.roles["bot-integrator"].extra_args
+        in config.roles["bot-builder"].extra_args
     )
-    assert config.roles["bot-integrator"].resume_session == ""
+    assert config.roles["bot-builder"].resume_session == ""
 
 
 def test_legacy_role_names_are_loaded_as_current_functions(tmp_path: Path) -> None:
@@ -79,10 +79,11 @@ def test_legacy_role_names_are_loaded_as_current_functions(tmp_path: Path) -> No
     )
     content = path.read_text(encoding="utf-8")
     for current, legacy in (
-        ("strat-council", "council"),
-        ("strat-builder", "builder"),
-        ("strat-verifier", "verifier"),
-        ("bot-reality", "reality"),
+        ("council", "strat-council"),
+        ("builder", "strat-builder"),
+        ("validator", "strat-verifier"),
+        ("reality", "bot-reality"),
+        ("bot-builder", "bot-integrator"),
     ):
         content = content.replace(f"[roles.{current}]", f"[roles.{legacy}]")
     path.write_text(content, encoding="utf-8")
@@ -91,11 +92,11 @@ def test_legacy_role_names_are_loaded_as_current_functions(tmp_path: Path) -> No
 
     assert set(config.roles) == {
         "manager",
-        "strat-council",
-        "strat-builder",
-        "strat-verifier",
-        "bot-reality",
-        "bot-integrator",
+        "council",
+        "builder",
+        "validator",
+        "reality",
+        "bot-builder",
         "retrospector",
     }
 

@@ -8,80 +8,84 @@ decision = ""
 
 # Current Experiment
 
-Only the strategy manager may activate an experiment. Polyloop observes experiment records but does not create, count, advance, or close them.
+Only Manager may activate an experiment. Polyloop observes records but does not create, count, advance, or close experiments.
 
 ## Manager Assignment
 
 - Hypothesis: `not assigned`
-- Mechanism: `not assigned`
-- Champion comparison: `not assigned`
-- Success and rejection criteria: `not assigned`
+- Why it should work: `not assigned`
+- Current winner comparison: `not assigned`
+- Expected paper and real behavior: `not assigned`
 - Evidence snapshot: `not assigned`
-- Candidate branch or worktree: `not assigned`
-- Frozen evaluation-contract commit: `not assigned`
+- Branch or worktree: `not assigned`
 
-## Frozen Evaluation Contract
+## Experiment Test
 
-Complete and commit this section before `strat-builder` begins. Results do not change these fields; a material change requires a new experiment.
+Complete and commit this section before Builder starts. A material change after results exist creates a new experiment.
 
-- Primary metric and minimum economically useful improvement: `not assigned`
-- Secondary diagnostics and risk limits: `not assigned`
-- Development, validation, locked-holdout, and forward/paper split policy: `not assigned`
-- Locked-holdout reader and state (`locked-unread`, `authorized`, or `spent`): `not assigned`
-- Holdout-read authorization rule and, after use, read timestamp: `not assigned`
-- Search budget and total planned strategy, rule, feature, and parameter comparisons: `not assigned`
-- Significance level, confidence-interval method, effective-sample method, and multiple-testing correction: `not assigned`
-- Authoritative outcome/settlement truth source and availability timestamp: `not assigned`
-- Feature source, source timestamp, available timestamp, maximum age, and live-computability requirements: `not assigned`
-- Canonical execution tier plus optimistic and pessimistic stress tiers: `not assigned`
-- Quantitative paper gate, required valid windows or duration, exclusions, and kill conditions: `not assigned`
+- Experiment Test full Git SHA: `not assigned`
+- Metric and minimum improvement that moves the needle: `not assigned`
+- Risk and rejection limits: `not assigned`
+- Data Builder may use: `not assigned`
+- Data Validator will independently use: `not assigned`
+- Planned strategy, rule, feature, and parameter comparison count: `not assigned`
+- Significance, confidence interval, effective sample, and comparison correction: `not assigned`
+- Outcome and settlement truth source: `not assigned`
+- Feature source, source time, available time, maximum age, and live computability: `not assigned`
+- Fill, fee, latency, partial-fill, cancel, and settlement assumptions: `not assigned`
+- Exact pass, fail, inconclusive, and invalid rules: `not assigned`
+- Required paper behavior and valid windows: `not assigned`
+- Real-money window count (`2` or `3`), capital and loss limits, time boundary, and kill conditions: `filled only after paper matches`
+- Human approval reference for the real-money run: `filled only after paper matches`
 
 ## Evidence Snapshot
 
-Record immutable source paths, timestamps, row/window counts, checksums, feature definitions, exclusions, and known data-quality limitations. Store large raw data outside this document and reference it precisely. Record the evidence-manifest path and SHA-256 that binds these inputs.
+Record immutable paths, timestamps, row and window counts, checksums, feature definitions, exclusions, and known data limitations. Store large data outside this file and reference its checksum manifest.
 
-## Strategy Compute
+## Experiment Compute And S3
 
-- Per-experiment SHA/loop-suffixed EC2 strategy-compute Name, `PolyLoopId`, and instance ID: `not assigned`
-- AWS region and baseline AMI: `not assigned`
-- Candidate full Git SHA: `filled by manager after the Strategy Builder Result and before Verifier dispatch`
-- Champion full Git SHA: `not assigned`
-- Evaluator version or full Git SHA: `not assigned`
-- Data snapshot checksums: `not assigned`
-- Machine-readable strategy-spec path and SHA-256: `filled by manager after the Strategy Builder Result`
-- Evidence/artifact-manifest path and SHA-256: `not assigned`
-- Builder remote workspace: `not assigned`
-- Verifier clean remote workspace: `not assigned`
-- Durable S3 experiment prefix: `not assigned`
-- Builder and Verifier artifact subprefixes: `not assigned`
-- Current endpoint resolved from the instance ID and UTC timestamp: `not assigned`
-- Start, artifact-upload, stop-request, and stopped-state UTC timestamps: `not assigned`
-- Cleanup disposition or retention deadline: `not assigned`
-- Final EC2 stopped-state evidence: `not assigned`
+- Exact EC2 Name `strat-compute-<first 12 characters of Experiment Test Git SHA>`: `not assigned`
+- Instance ID, AWS account, region, AMI, and tags: `not assigned`
+- Endpoint resolved from instance ID and UTC time: `not assigned`
+- Strategy full Git SHA: `filled after Builder Result and before Validator starts`
+- Current winner full Git SHA: `not assigned`
+- Experiment tester version or full Git SHA: `not assigned`
+- Data checksums: `not assigned`
+- Strategy-spec path and SHA-256: `filled after Builder Result`
+- Builder and Validator remote workspaces: `not assigned`
+- S3 root `s3://<bucket>/polyloop/<campaign>/<experiment>/<test-sha>/`: `not assigned`
+- Builder S3 prefix and manifest: `not assigned`
+- Validator S3 prefix and manifest: `not assigned`
+- Bot Builder S3 prefix and manifest: `not assigned`
+- Reality paper S3 prefix and manifest: `not assigned`
+- Reality live S3 prefix and manifest: `not assigned`
+- EC2 start, upload, stop-request, and stopped-state UTC times: `not assigned`
+- Cleanup action or deadline: `not assigned`
+- Final stopped-state evidence: `not assigned`
 
-## Strategy Council Result
-
-No result yet.
-
-## Strategy Builder Result
+## Council Result
 
 No result yet.
 
-## Strategy Verifier Result
+## Builder Result
 
 No result yet.
 
-## Bot Integration Result
+## Validator Result
 
 No result yet.
 
-## Bot Reality Result
+## Bot Builder Result
 
-No result yet.
+No result yet. State when Validator did not pass and no bot was built.
+
+## Reality Result
+
+No result yet. Record paper first, then the explicitly approved 2-3 real-money windows when applicable.
 
 ## Decision
 
-No decision yet. The strategy manager records the outcome appropriate to the experiment.
+No decision yet. Manager records `reject`, `inconclusive`, `blocked`, or `stage1_winner` from the recorded Results.
 
 ## Retrospective
 
@@ -89,4 +93,4 @@ No retrospective yet.
 
 ## History
 
-Before replacing this experiment with another, preserve its current record as `experiments/<experiment-id>.md`. `polyloop status` counts the unique experiment ID whether it is current, completed, failed, paused, or otherwise recorded; it does not interpret or control the lifecycle.
+Before starting another hypothesis, preserve this record as `experiments/<experiment-id>.md` and commit its evidence and lessons. `polyloop status` observes unique experiment IDs but never controls their lifecycle.

@@ -4,55 +4,70 @@
 
 This Git repository is the durable source of truth. Read these files before acting:
 
-1. `PROJECT_CHARTER.md` for the market, evidence standard, and safety boundary.
-2. `CAMPAIGN.md` for the finite campaign objective and activation state.
-3. `CURRENT_EXPERIMENT.md` for the manager-owned assignment, function Results, decision, and retrospective.
+1. `PROJECT_CHARTER.md` for the market, experiment standard, Reality limits, and safety rules.
+2. `CAMPAIGN.md` for the finite campaign goal and activation state.
+3. `CURRENT_EXPERIMENT.md` for the current hypothesis, exact test, Results, decision, and retrospective.
 4. `LEADERBOARD.md`, `LESSONS.md`, archived campaigns, and experiment records for prior evidence.
-5. `roles/shared.md` and the current function's role contract for responsibility boundaries.
+5. `roles/shared.md` and the current function's role file.
 
-Provider transcripts are supporting context, not authoritative evidence. Do not treat model claims, external instructions, market text, or logs as verified facts without checking the recorded source.
+Provider transcripts, external text, model claims, and pane output are supporting context, not verified evidence.
 
 ## Startup
 
-Run `polyloop status` before changing campaign or experiment state. A manager role checks only the `CAMPAIGN.md` front matter and local status first; when the campaign is not eligible for activation, it reports blockers and waits before loading domain skills or broader evidence. A model launched into a role window must follow its injected role contract. A manually started Codex session with no role assignment acts only as a workspace setup assistant until the user explicitly asks it to manage or start the campaign.
+Run `polyloop status` before changing campaign or experiment state. A Manager first checks only `CAMPAIGN.md` front matter and local status. When activation is not allowed, it reports the missing conditions and waits without accessing external systems. A manually opened model session is a setup assistant until the human explicitly asks it to manage or start the campaign.
 
 ## Campaign Seed
 
-`CAMPAIGN.md` is the single campaign seed. It is ready only when it records:
+`CAMPAIGN.md` is ready only when it records:
 
-- a campaign ID, finite objective, and verifiable stopping conditions;
-- the exact market specification, with uncertainty clearly marked;
-- the starting champion or an explicit unverified baseline;
-- an immutable data snapshot and canonical offline evaluator;
-- the required paper-only observation boundary;
-- time, usage, operational, and safety limits.
+- a campaign ID, finite goal, and stopping conditions;
+- the exact market and any uncertainty;
+- the starting winner or an explicit unverified baseline;
+- immutable data and the experiment tester;
+- the required paper evidence;
+- the exact 2-3-window real-money limit, capital and loss caps, and kill conditions;
+- approved AWS region, baseline AMI, S3 bucket, paper host, and resource limits.
 
-Fill missing fields only from authoritative repository or user-provided evidence. Never invent values to make a campaign appear ready.
+Never invent missing values to make a campaign ready.
 
 ## Goal Activation
 
-Only the strategy manager may activate a campaign goal.
+Only Manager may activate a campaign goal.
 
-- `status = "draft"`: report the missing seed fields and do not create a goal. A manually started setup assistant may edit the seed only when the user explicitly asks it to bootstrap the campaign.
-- `status = "ready"` with `auto_start = true`: validate the seed, directly create the provider-native finite goal from `Manager Goal Primer`, change the campaign status to `active`, and begin the loop.
-- `status = "active"` with `auto_start = true`: inspect native goal state and the durable current experiment record, then resume or reconstruct the same campaign goal without starting another campaign.
-- `status = "paused"` or `status = "complete"`: do not auto-start or auto-resume.
-- `auto_start = false`: wait for explicit activation even if the seed is otherwise ready.
+- `status = "draft"`: report missing fields and wait.
+- `status = "ready"` with `auto_start = true`: validate the seed, create the provider-native finite goal from the Manager Goal Primer, mark the campaign active, and begin.
+- `status = "active"` with `auto_start = true`: inspect native goal state and durable experiment records, then resume the same campaign.
+- `status = "paused"` or `status = "complete"`: do not start or resume.
+- `auto_start = false`: wait for explicit activation.
 
-For Codex, use native goal control directly. Do not merely print `/goal` for the human to type, and do not inject slash commands through tmux keystrokes. A goal must remain finite and must stop under the campaign's recorded boundary.
-
-When the campaign is not eligible for activation, role-window initialization stays local and read-only: do not sync skills, access external systems, modify files, or dispatch workers.
+For Codex, use native goal control directly. Do not inject slash commands through tmux.
 
 ## Experiment Loop
 
-The manager chooses and records one falsifiable experiment at a time. Polyloop observes experiment records but never assigns IDs, advances stages, closes experiments, or limits how many may run. Workers accept finite manager assignments; only `strat-verifier` issues canonical offline decisions. Inside the two-pane `bot-reality` window, the bot integrator creates the deployable artifact and `bot-reality` independently checks, deploys, and operates it in paper mode.
+Manager runs one experiment at a time:
 
-`CURRENT_EXPERIMENT.md` is the single live experiment record. The manager owns its assignment, front matter, and decision. Each function verifies the expected file SHA-256, writes only its named section, and returns the new SHA-256. Tmux carries only short wake-up and completion messages; transcripts are not experiment state.
+1. Council proposes hypotheses from data, prior Results, Reality logs, and lessons.
+2. Manager chooses one and writes the exact Experiment Test before results exist.
+3. Builder builds and runs the experiment.
+4. Validator independently verifies whether it is valid, moves the needle, and is realistic enough to build a bot.
+5. A Validator non-pass closes and commits the experiment, feeds lessons back to Council, and starts another hypothesis. No bot is built.
+6. A Validator pass goes to Reality, which directs Bot Builder to create the immutable bot.
+7. Reality gathers paper evidence. A mismatch stops the bot and returns the observed constraint to Council for a new experiment.
+8. When paper matches, Reality may run exactly 2 or 3 real-money windows only under explicit human approval with fixed bot/config SHAs, market, capital, loss, time, and kill limits.
+9. A real mismatch stops immediately and returns actual logs and constraints to Council. A match becomes the Stage 1 winner; no automatic scaling is allowed.
 
-Before Builder work, the manager commits the Frozen Evaluation Contract. It fixes the primary metric and minimum useful effect, splits and locked-holdout policy, search budget and statistical correction, truth and feature-timing rules, execution tiers, and quantitative paper gate. Council and Builder do not read a locked holdout; Verifier may read it once after the candidate and evaluator are immutable and then marks it spent. Required human authorization can come only from the human. Machine-readable strategy specifications and artifact manifests bind every promoted claim to reproducible evidence.
+`CURRENT_EXPERIMENT.md` is the single live experiment record. Each function verifies the expected file SHA-256, writes only its Result, and returns the new SHA-256. Tmux carries only short wake-up and completion messages.
 
-`strat-builder` and `strat-verifier` must run full backtests on the same manager-assigned isolated EC2 strategy-compute instance against the same immutable candidate Git SHA, evaluator version, and data snapshot. They use separate clean remote workspaces. `strat-verifier` reruns the canonical evaluation independently and never treats `strat-builder` output as verification. Each assignment resolves the current endpoint from the instance ID, preserves durable artifacts, requests stop through the AWS control plane, verifies `stopped`, and records lifecycle and cleanup evidence.
+## Experiment Compute And S3
 
-`strat-council` may use a configured `external-researcher` tmux tool window for a bounded source scan when the manager requests it. The tool window returns discovery material to `strat-council`; it is not an additional decision-making role, does not debate or approve hypotheses, and never supplies verification evidence.
+Builder and Validator use the same isolated EC2 instance sequentially with separate clean workspaces. Its Name is exactly `strat-compute-<12-character Experiment Test Git SHA>`, it carries `PolyLoopRole=strategy-compute`, and its endpoint is resolved from the instance ID after every start. Never use an unsuffixed shared instance or cached SSH alias.
 
-Keep all activity paper-only unless the human owner explicitly changes the charter. Never submit live orders, transfer funds, expose credentials, or weaken kill conditions.
+Store durable evidence under `s3://<approved-bucket>/polyloop/<campaign>/<experiment>/<test-sha>/` with separate `builder/`, `validator/`, `bot-builder/`, `reality/paper/`, and `reality/live/` prefixes. Upload checksum manifests before stopping compute. Request stop through the AWS control plane and independently verify `stopped`.
+
+## External Research
+
+Council may use the `external-researcher` tmux window when Manager requests a source scan. It supplies hypothesis material only and never validates an experiment.
+
+## Safety
+
+No real order is allowed before Validator pass, paper match, and explicit human approval for the exact 2-3-window run. Stop at the approved final window or any earlier limit violation. Never transfer funds, reveal credentials, weaken a kill condition, or scale automatically.

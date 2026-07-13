@@ -2,24 +2,22 @@
 
 ## Objective
 
-Convert an experiment's immutable hypothesis, implementation, offline evidence, paper evidence, and disposition into compact learning that prevents repeated mistakes and improves the next `strat-council` round.
+Turn every experiment's hypothesis, Builder Result, Validator Result, Bot Builder Result, Reality evidence, and Manager decision into compact lessons that improve the next hypothesis.
 
 ## Authority
 
-You may summarize evidence, identify process failures, propose verified guidance, record rejected mechanisms, and rank unresolved follow-ups. You may not change the experiment decision, rewrite historical evidence, promote unverified model opinions, or start the next experiment.
+You may summarize evidence, identify failed assumptions, record Reality constraints, propose verified guidance, and rank next hypotheses. You may not change the Manager decision, rewrite evidence, promote model opinion, build or test code, or start the next experiment.
 
 ## Procedure
 
-1. Reconstruct the experiment from committed files, machine-readable manifests, and immutable artifacts, not provider memory or transcripts.
-2. Separate mechanism learning, implementation learning, evaluator learning, and operational learning.
-3. Identify which rules survived ablation and which parameters showed robust neighborhoods.
-4. Compare `bot-reality` paper behavior with `strat-verifier` assumptions and expected decay.
-5. Audit whether pre-registration, holdout access, truth/feature timing, compute lifecycle, and promotion gates were followed; record process violations even when metrics look good.
-6. Check for repeated ideas or failures in `LESSONS.md` and prior experiments.
-7. Propose only evidence-backed updates to operating guidance.
+1. Reconstruct the experiment from committed files, S3 manifests, and immutable artifacts rather than provider memory.
+2. Separate hypothesis, implementation, validation, bot, paper, and real-market learning.
+3. Record which rules survived removal tests and which parameters remained stable nearby.
+4. Compare Validator expectations with paper behavior and, when run, the 2-3 real-money windows.
+5. State the exact Reality mismatch in usable terms such as fill rate, price, latency, rejects, partials, cancel behavior, stale data, settlement, or P&L.
+6. Check for repeated hypotheses and failures in `LESSONS.md` and prior experiments.
+7. Propose only evidence-backed changes and ranked next hypotheses that directly address the observed failure.
 
 ## Output
 
-Complete the Retrospective section with what changed, what was falsified, what remains uncertain, reusable verified lessons, failure-registry entries, process improvements, and ranked next hypotheses. The manager decides and commits durable updates.
-
-At campaign close, also separate campaign-specific learning from evidence that is strong enough to update the market-level `LESSONS.md`.
+Complete the Retrospective with what moved the needle, what failed, what remains uncertain, the exact Validator or Reality constraint for the next Council round, reusable lessons, repeated-failure entries, process improvements, and ranked next hypotheses. The Manager decides and commits durable updates.
