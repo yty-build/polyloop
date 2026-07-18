@@ -20,8 +20,8 @@ Window and pane names describe functions, not providers. Each defaults to Codex 
 - Council proposes hypotheses from data, past Results, and Reality constraints.
 - Builder builds and runs each approved experiment.
 - Validator independently decides whether the experiment validly moves the needle and is realistic enough to build a bot.
-- Bot Builder acts only after Validator pass.
-- Reality tests paper first and, under exact human approval, 2-3 real-money windows.
+- Bot Builder acts only after Validator pass and reuses verified functionality by default.
+- Reality tests paper first and uses money only under the exact Owner Capital Authorization.
 - Retrospector feeds every Validator or Reality failure into the next hypothesis.
 - External Researcher is an optional Council tool.
 
@@ -33,14 +33,16 @@ Council hypothesis
   -> Builder experiment
   -> Validator
        fail: commit evidence and lessons -> Council hypothesis
-       pass: Bot Builder -> Reality paper
+       pass: reuse-first Bot Builder -> Reality paper
                   paper mismatch: stop -> Council hypothesis
-                  paper match: approved 2-3 real-money windows
+                  paper match: exact owner-authorized real-world test
                        real mismatch: stop -> Council hypothesis
                        real match: Stage 1 winner, stop without scaling
 ```
 
 Polyloop does not create experiments or impose an experiment count. Manager decides when another experiment is materially useful within the campaign's finite resource and safety limits.
+
+The human owner defines the test and is the sole authority for every use of money. Models can recommend or report technical limitations, but cannot create, infer, change, redirect, extend, or reuse capital authority.
 
 ## Requirements
 
@@ -174,9 +176,13 @@ Each function uploads a checksum manifest. Builder and Validator request EC2 sto
 
 ## Reality
 
-Reality directs Bot Builder only after Validator pass. Bot Builder creates an immutable bot, parity tests, failure tests, and deployment manifest but never deploys it. Reality independently checks the bot and runs paper.
+Reality directs Bot Builder only after Validator pass. Bot Builder first reads `FUNCTIONALITY_LOG.md`, reuses every compatible verified implementation at its canonical SHA, and builds only genuinely missing functionality or the smallest replacement justified by a demonstrated technical limitation. A different experiment, model, coding preference, library preference, or cleanup is not a technical limitation.
 
-If paper matches, a real-money test requires explicit human approval containing the exact bot and config SHAs, market, exactly 2 or 3 windows, capital per window, maximum position, total loss, time boundary, and kill conditions. Reality stops after the final approved window or any earlier violation. A mismatch returns logs and constraints to Council. A match completes Stage 1 but never authorizes automatic scaling.
+Reality independently checks the immutable bot and runs the exact Owner Test Directive in paper. If paper matches, using money requires a committed Owner Capital Authorization containing the exact bot and config SHAs, account identifier without credentials, market, allocation, sizing, test method, timing, duration or count, owner-defined controls, permitted discretion, expiry, and revocation terms. Polyloop supplies no default window count or model-created financial limit. Missing scope means no authority. A match completes Stage 1 but grants no authority for another run or scaling.
+
+## Functionality Reuse
+
+`FUNCTIONALITY_LOG.md` is the durable register of bot functionality already built and verified. Each entry records the canonical path, immutable Git SHA, interface, verification evidence, compatibility, and known limitations. Every Bot Builder Result lists reused entries and SHAs. Rebuilding a verified entry requires recorded reproducing evidence, an explanation of why configuration or a small adapter is insufficient, Reality approval, and the smallest necessary change.
 
 ## Prompt And Git Model
 
@@ -184,7 +190,7 @@ If paper matches, a real-money test requires explicit human approval containing 
 
 Detailed assignments and Results live in `CURRENT_EXPERIMENT.md`. Tmux messages carry only wake-ups and completion notifications with the expected file SHA-256. Before another hypothesis starts, Manager archives the record under `experiments/` and commits evidence and lessons.
 
-Git is the stage ledger. Manager commits the Council Result, frozen Experiment Test, Builder Result, Validator Result and decision, Bot Builder Result, paper Result, exact human real-money approval, each real-money window, and final Retrospective/archive before advancing. Campaign activation, pause, resume, and completion are also committed. Builder and Bot Builder may create immutable strategy and bot artifact commits, but Manager owns lifecycle advancement.
+Git is the stage ledger. Manager commits the Owner Test Directive, Council Result, frozen Experiment Test, Builder Result, Validator Result and decision, Bot Builder Result plus functionality-log changes, paper Result, Owner Capital Authorization, each owner-defined real-world evidence unit, and final Retrospective/archive before advancing. Campaign activation, pause, resume, and completion are also committed. Builder and Bot Builder may create immutable strategy and bot artifact commits, but Manager owns lifecycle advancement.
 
 This is not a commit-per-edit design. Repeated test invocations, commands, heartbeats, tmux messages, incremental logs, and transient `started` or `running` states stay out of Git; their final manifests and Results enter the next required stage commit. The shared worktree must be clean before the next function is dispatched.
 
@@ -201,4 +207,4 @@ Polyloop refuses to claim a tmux session owned by another workspace.
 
 ## Safety
 
-Polyloop does not connect to Polymarket, AWS, exchanges, or wallets. Project-specific infrastructure procedures and credentials stay outside the framework. No real order is allowed before Validator pass, paper match, and exact human approval for the bounded Reality run.
+Polyloop does not connect to Polymarket, AWS, exchanges, or wallets. Project-specific infrastructure procedures and credentials stay outside the framework. The human owner alone controls capital. No real order is allowed before Validator pass, paper match, and committed Owner Capital Authorization for the exact run; models cannot fill gaps or reuse it.

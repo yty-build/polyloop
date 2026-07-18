@@ -61,6 +61,7 @@ def create_project_files(
         "PROJECT_CHARTER.md": "PROJECT_CHARTER.md",
         "CAMPAIGN.md": "CAMPAIGN.md",
         "CURRENT_EXPERIMENT.md": "CURRENT_EXPERIMENT.md",
+        "FUNCTIONALITY_LOG.md": "FUNCTIONALITY_LOG.md",
         "LEADERBOARD.md": "LEADERBOARD.md",
         "LESSONS.md": "LESSONS.md",
         "experiments/EXPERIMENT_TEMPLATE.md": "EXPERIMENT_TEMPLATE.md",

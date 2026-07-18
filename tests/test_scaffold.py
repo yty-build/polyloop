@@ -18,7 +18,7 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
 
     second = create_project_files(tmp_path, **arguments)
 
-    assert len(first) == 17
+    assert len(first) == 18
     assert second == []
     assert charter.read_text(encoding="utf-8") == "human-owned charter\n"
     assert "create the provider-native finite goal" in (
@@ -34,6 +34,10 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
     assert (tmp_path / "roles" / "builder.md").is_file()
     assert (tmp_path / "roles" / "validator.md").is_file()
     assert (tmp_path / "roles" / "reality.md").is_file()
+    functionality_log = (tmp_path / "FUNCTIONALITY_LOG.md").read_text(encoding="utf-8")
+    assert "canonical register of bot functionality" in functionality_log
+    assert "different experiment, model, coding style" in functionality_log
+    assert "technical limitation recorded before code changes" in functionality_log
     current_experiment = (tmp_path / "CURRENT_EXPERIMENT.md").read_text(
         encoding="utf-8"
     )
@@ -43,7 +47,10 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
     assert "Bot Builder Result" in current_experiment
     assert "Reality Result" in current_experiment
     assert "Git Stage History" in current_experiment
-    assert "Real-money window Result commits" in current_experiment
+    assert "Owner Test Directive" in current_experiment
+    assert "Owner Capital Authorization" in current_experiment
+    assert "Functionality Reuse" in current_experiment
+    assert "Owner-defined real-world evidence-unit Result commits" in current_experiment
     assert "Experiment Test full Git SHA" in current_experiment
     assert "strat-compute-<first 12 characters" in current_experiment
     assert "Data Validator will independently use" in current_experiment
@@ -65,20 +72,27 @@ def test_scaffold_is_idempotent_and_does_not_overwrite(tmp_path: Path) -> None:
     assert "data reserved for Validator" in builder
     assert "checksum manifest" in builder
     shared = (tmp_path / "roles" / "shared.md").read_text(encoding="utf-8")
-    assert "exactly 2 or 3 windows" in shared
+    assert "The human owner alone controls" in shared
+    assert "Missing scope means no authority" in shared
+    assert "reuses compatible `verified` entries" in shared
     assert "Git is the durable stage ledger, not an activity log" in shared
-    assert "Each approved real-money window Result" in shared
+    assert "Exact Owner Test Directive before Council starts" in shared
+    assert "Each owner-defined real-world evidence unit" in shared
     assert "Do not commit `started`, `running`" in shared
     manager = (tmp_path / "roles" / "manager.md").read_text(encoding="utf-8")
     assert "repeatedly run experiments through Builder and Validator" in manager
-    assert "No model may invent or infer this approval" in manager
-    assert "Wake Reality for one approved window at a time" in manager
+    assert "may not reinterpret an Owner Test Directive" in manager
+    assert "Do not fill gaps or add model-created financial controls" in manager
+    assert "reuse all compatible verified functionality" in manager
+    assert "record the full Git SHA before Council starts" in manager
     assert "git status --porcelain" in manager
     bot_builder = (tmp_path / "roles" / "bot-builder.md").read_text(encoding="utf-8")
-    assert "Before changing bot code, write a short plan" in bot_builder
+    assert "Before changing code, write the reuse plan" in bot_builder
+    assert "different model, experiment, style, or library preference" in bot_builder
     assert "cancel-response ambiguity" in bot_builder
     reality = (tmp_path / "roles" / "reality.md").read_text(encoding="utf-8")
-    assert "exactly 2 or 3 windows" in reality
+    assert "exact Owner Capital Authorization" in reality
+    assert "A missing field grants no discretion" in reality
     assert "A mismatch stops the bot" in reality
 
 

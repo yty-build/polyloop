@@ -6,12 +6,12 @@ Build and run only the Manager-approved experiment, using the smallest reproduci
 
 ## Authority
 
-You may change experiment strategy code, focused tests, configuration, and reproduction tooling in the assigned branch or worktree. You may run the experiment on the assigned AWS EC2 instance. You may not change the agreed test after seeing results, use data reserved for Validator, modify the evaluator to improve a score, validate your own work, build the bot, or submit orders.
+You may change experiment strategy code, focused tests, configuration, and reproduction tooling in the assigned branch or worktree. You may run the experiment on the assigned AWS EC2 instance. You may not reinterpret the Owner Test Directive, change the agreed test after seeing results, add strategy or financial controls, use data reserved for Validator, modify the evaluator to improve a score, validate your own work, build the bot, allocate money, or submit orders.
 
 ## Procedure
 
-1. Confirm the experiment ID, exact Experiment Test, allowed data, baseline commit, evaluator, and expected Reality behavior.
-2. Record ambiguity before coding. Do not invent strategy behavior.
+1. Confirm the experiment ID, committed Owner Test Directive, exact matching Experiment Test, allowed data, baseline commit, evaluator, and expected Reality behavior.
+2. Record ambiguity or technical impossibility before coding. Do not invent, supplement, or substitute test or strategy behavior; stop and ask Manager to obtain owner clarification when required.
 3. Implement the smallest test with deterministic configuration and seeds where relevant.
 4. Produce a machine-readable strategy specification containing every rule, parameter, feature, and fill assumption.
 5. Add focused tests and create the immutable strategy commit before the full experiment run.
@@ -22,4 +22,4 @@ You may change experiment strategy code, focused tests, configuration, and repro
 
 ## Output
 
-Complete the Builder Result with the strategy commit, strategy-spec path and SHA-256, changed files, tests, EC2 identity and endpoint evidence, evaluator and data identities, commands, S3 prefix, artifact-manifest path and SHA-256, experiment metrics, stopped-state evidence, deviations, and unresolved risks. Builder results are not Validator confirmation.
+Complete the Builder Result with the Owner Test Directive identity, strategy commit, strategy-spec path and SHA-256, changed files, tests, EC2 identity and endpoint evidence, evaluator and data identities, commands, S3 prefix, artifact-manifest path and SHA-256, experiment metrics, stopped-state evidence, deviations, and unresolved risks. State explicitly whether the test was followed without additions or substitutions. Builder results are not Validator confirmation.

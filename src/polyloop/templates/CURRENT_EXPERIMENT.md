@@ -10,6 +10,17 @@ decision = ""
 
 Only Manager may activate an experiment. Polyloop observes records but does not create, count, advance, or close experiments.
 
+## Owner Test Directive
+
+Manager records the owner's instruction exactly or links its durable source before Council or Builder acts. Models may report ambiguity or technical impossibility but may not reinterpret, supplement, weaken, strengthen, or substitute this directive.
+
+- Exact owner instruction or durable reference: `not assigned`
+- Required test method and evidence checkpoints: `not assigned`
+- Required paper and real-world behavior: `not assigned`
+- Explicitly permitted model discretion: `none unless owner assigns it`
+- Prohibited substitutions or additions: `anything not authorized by the owner`
+- Directive commit full Git SHA: `not assigned`
+
 ## Manager Assignment
 
 - Hypothesis: `not assigned`
@@ -21,7 +32,7 @@ Only Manager may activate an experiment. Polyloop observes records but does not 
 
 ## Experiment Test
 
-Complete and commit this section before Builder starts. A material change after results exist creates a new experiment.
+Complete and commit this section before Builder starts. It must implement the Owner Test Directive exactly. A material owner change or test change creates a new committed directive and experiment.
 
 - Experiment Test full Git SHA: `not assigned`
 - Metric and minimum improvement that moves the needle: `not assigned`
@@ -34,9 +45,21 @@ Complete and commit this section before Builder starts. A material change after 
 - Feature source, source time, available time, maximum age, and live computability: `not assigned`
 - Fill, fee, latency, partial-fill, cancel, and settlement assumptions: `not assigned`
 - Exact pass, fail, inconclusive, and invalid rules: `not assigned`
-- Required paper behavior and valid windows: `not assigned`
-- Real-money window count (`2` or `3`), capital and loss limits, time boundary, and kill conditions: `filled only after paper matches`
-- Human approval reference for the real-money run: `filled only after paper matches`
+- Required owner-directed paper behavior and evidence checkpoints: `not assigned`
+
+## Owner Capital Authorization
+
+Keep this section unauthorized until paper matches and the human owner explicitly supplies the exact scope. No model may infer, propose as approved, modify, redirect, extend, or reuse this authorization. Missing scope grants zero authority.
+
+- Status: `no money authorized`
+- Exact owner approval or durable reference: `not assigned`
+- Exact bot and configuration full Git SHAs: `not assigned`
+- Account identifier without credentials and exact market: `not assigned`
+- Total allocation and order-sizing method: `not assigned`
+- Test method, timing, duration or count, and evidence checkpoints: `not assigned`
+- Owner-defined controls and permitted operational discretion: `not assigned`
+- Effective, expiry, and revocation terms: `not assigned`
+- Authorization commit full Git SHA: `not assigned`
 
 ## Evidence Snapshot
 
@@ -63,6 +86,15 @@ Record immutable paths, timestamps, row and window counts, checksums, feature de
 - Cleanup action or deadline: `not assigned`
 - Final stopped-state evidence: `not assigned`
 
+## Functionality Reuse
+
+- `FUNCTIONALITY_LOG.md` input commit: `not assigned`
+- Verified functionality names, canonical paths, and SHAs to reuse: `not assigned`
+- Missing functionality to build: `not assigned`
+- Demonstrated technical limitations requiring replacement: `none`
+- Reality approval for each replacement: `not applicable`
+- Functionality-log updates in Bot Builder stage commit: `not assigned`
+
 ## Council Result
 
 No result yet.
@@ -81,7 +113,7 @@ No result yet. State when Validator did not pass and no bot was built.
 
 ## Reality Result
 
-No result yet. Record paper first, then the explicitly approved 2-3 real-money windows when applicable.
+No result yet. Record the exact owner-directed paper test first, then the exact Owner Capital Authorization when applicable.
 
 ## Decision
 
@@ -93,16 +125,17 @@ No retrospective yet.
 
 ## Git Stage History
 
-Before final archive, list the full Git SHAs for the Council Result, Experiment Test, Builder Result, Validator Result and decision, Bot Builder Result when applicable, paper Result, exact human approval when applicable, every real-money window, and final pre-archive decision. Use `not applicable` for stages that were correctly skipped. Git history for the archived experiment file identifies the final archive commit; a commit cannot contain its own SHA.
+Before final archive, list the full Git SHAs for the Owner Test Directive, Council Result, Experiment Test, Builder Result, Validator Result and decision, Bot Builder Result and functionality-log update when applicable, paper Result, Owner Capital Authorization when applicable, every owner-defined real-world evidence unit, and final pre-archive decision. Use `not applicable` for stages that were correctly skipped. Git history for the archived experiment file identifies the final archive commit; a commit cannot contain its own SHA.
 
+- Owner Test Directive commit: `not assigned`
 - Council Result commit: `not assigned`
 - Experiment Test commit: `not assigned`
 - Builder Result commit: `not assigned`
 - Validator Result and decision commit: `not assigned`
 - Bot Builder Result commit: `not assigned`
 - Paper Result and decision commit: `not assigned`
-- Human real-money approval commit: `not assigned`
-- Real-money window Result commits: `not assigned`
+- Owner Capital Authorization commit: `not assigned`
+- Owner-defined real-world evidence-unit Result commits: `not assigned`
 - Final pre-archive decision commit: `not assigned`
 
 ## History

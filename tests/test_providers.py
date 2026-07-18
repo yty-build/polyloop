@@ -65,9 +65,12 @@ def test_codex_manager_can_activate_a_ready_campaign_without_typed_slash_command
     assert "auto_start = true" in prompt
     assert "directly create or resume the native goal" in prompt
     assert "do not merely print a /goal command" in prompt
-    assert "First read only the TOML front matter" in prompt
+    assert "First read only CAMPAIGN.md TOML front matter" in prompt
     assert "If and only if activation is eligible" in prompt
     assert "do not load domain skills or sync skills" in prompt
+    assert "FUNCTIONALITY_LOG.md" in prompt
+    assert "Owner Test Directive" in prompt
+    assert "owner-only capital authority" in prompt
 
 
 def test_worker_still_waits_for_a_finite_manager_assignment() -> None:
@@ -75,6 +78,7 @@ def test_worker_still_waits_for_a_finite_manager_assignment() -> None:
 
     assert "initialization only" in prompt
     assert "wait for a finite manager assignment" in prompt
+    assert "FUNCTIONALITY_LOG.md" in prompt
     assert "auto_start" not in prompt
 
 
@@ -161,8 +165,9 @@ def test_manager_receives_complete_team_runtime(tmp_path: Path) -> None:
     assert "Builder pane: %12" in manager
     assert "Validator pane: %13" in manager
     assert "Reality pane: %14" in manager
+    assert "exact owner-authorized real-world Result" in manager
     assert "Bot builder pane: %15" in manager
     assert "Retrospector pane: %16" in manager
     assert "manager-test:external-researcher" in manager
-    assert "compute the SHA-256" in manager
-    assert "two separate commands" in manager
+    assert "Include CURRENT_EXPERIMENT.md SHA-256" in manager
+    assert "Send text and Enter separately" in manager

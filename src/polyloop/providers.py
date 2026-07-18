@@ -112,24 +112,19 @@ def load_role_context(
     if role_name == "manager" and pane_targets:
         context += (
             "\n# Manager Team Runtime\n\n"
-            f"Council pane: {pane_targets['council']} - ranked hypotheses and "
-            "external-research requests\n"
-            f"Builder pane: {pane_targets['builder']} - approved experiment build and test\n"
-            f"Validator pane: {pane_targets['validator']} - independent experiment Result\n"
-            f"Reality pane: {pane_targets['reality']} - paper and approved 2-3-window "
-            "real-world Result\n"
-            f"Bot builder pane: {pane_targets[BOT_BUILDER_ROLE]} - directed only by reality\n"
-            f"Retrospector pane: {pane_targets['retrospector']} - learning after "
-            "the manager decision\n"
-            f"External researcher window: {config.session}:"
-            f"{EXTERNAL_RESEARCHER_WINDOW} - requested only through council\n\n"
-            "Before waking a function, compute the SHA-256 of "
-            "CURRENT_EXPERIMENT.md and include it in the short message. Send text "
-            "and Enter with two separate commands: first "
+            f"Council pane: {pane_targets['council']}\n"
+            f"Builder pane: {pane_targets['builder']}\n"
+            f"Validator pane: {pane_targets['validator']}\n"
+            f"Reality pane: {pane_targets['reality']} - owner-directed paper and exact "
+            "owner-authorized real-world Result\n"
+            f"Bot builder pane: {pane_targets[BOT_BUILDER_ROLE]}\n"
+            f"Retrospector pane: {pane_targets['retrospector']}\n"
+            f"External researcher window: {config.session}:{EXTERNAL_RESEARCHER_WINDOW}\n\n"
+            "Dispatch from a clean stage commit. Include CURRENT_EXPERIMENT.md SHA-256. "
+            "Send text and Enter separately: "
             "`tmux send-keys -t <target> -l -- '<message>'`, then "
-            "`tmux send-keys -t <target> Enter`. Require the function to verify the "
-            "expected SHA before acting and before writing, then return the new SHA "
-            "after writing its named section.\n"
+            "`tmux send-keys -t <target> Enter`. Require SHA verification before work "
+            "and writing, then require the new SHA.\n"
         )
     researcher = config.external_researcher
     if role_name == "council" and researcher:
@@ -161,9 +156,9 @@ def load_role_context(
         if role_name == "reality":
             context += (
                 "You own this two-pane team. After Validator confirmation, put the detailed "
-                "bot assignment in CURRENT_EXPERIMENT.md and send only a short wake-up "
+                "reuse-first bot assignment in CURRENT_EXPERIMENT.md and send only a short wake-up "
                 "message to the bot-builder pane. Do not implement bot code. Review its "
-                "immutable Result before paper testing.\n"
+                "functionality reuse and immutable Result before paper testing.\n"
             )
         else:
             context += (
@@ -187,26 +182,22 @@ def startup_prompt(role_name: str, provider: str = "codex") -> str:
                 "otherwise report that the campaign is ready and wait. "
             )
         return (
-            "First read only the TOML front matter in CAMPAIGN.md and run polyloop "
-            "status. If the campaign is not status ready or active with auto_start = "
-            "true, immediately reply 'READY: manager' with the missing activation "
-            "conditions and wait. In that waiting path, do not load domain skills or "
-            "sync skills; do not access external systems, modify files, or dispatch work. "
-            "If and only if activation is eligible, read AGENTS.md, PROJECT_CHARTER.md, "
-            "the full CAMPAIGN.md, CURRENT_EXPERIMENT.md, LEADERBOARD.md, and LESSONS.md. "
-            "Validate its finite objective, stopping conditions, starting evidence, "
-            "experiment test, paper requirement, approved 2-3-window reality limit, "
-            "resource boundary, and safety limits. "
+            "First read only CAMPAIGN.md TOML front matter and run polyloop status. "
+            "Unless status is ready or active with auto_start = true, reply 'READY: "
+            "manager' with blockers and wait; do not load domain skills or sync skills, "
+            "modify files, access external systems, or dispatch. If and only if activation "
+            "is eligible, read AGENTS.md, PROJECT_CHARTER.md, full CAMPAIGN.md, "
+            "CURRENT_EXPERIMENT.md, FUNCTIONALITY_LOG.md, LEADERBOARD.md, and LESSONS.md. "
+            "Validate the finite goal, evidence, Owner Test Directive, owner-only capital "
+            "authority, resources, and technical integrity. "
             + native_goal
-            + "Use the Manager Goal Primer as the objective, mark a ready campaign active "
-            "after the goal is attached, and begin the manager loop. If validation fails, "
-            "report the blockers, leave the campaign unstarted, and wait. Never start a "
-            "different campaign."
+            + "Use the Manager Goal Primer, mark ready active only after attaching the goal, "
+            "and begin. On any blocker, leave it unstarted and wait. Never start another campaign."
         )
     function_name = FUNCTION_BY_ROLE[role_name]
     return (
         "Read AGENTS.md, PROJECT_CHARTER.md, CAMPAIGN.md, CURRENT_EXPERIMENT.md, "
-        f"LEADERBOARD.md, LESSONS.md, roles/shared.md, and roles/{role_name}.md. "
+        f"FUNCTIONALITY_LOG.md, LEADERBOARD.md, LESSONS.md, roles/shared.md, and roles/{role_name}.md. "
         "This is initialization only. "
         f"Reply exactly 'READY: {function_name}' and wait for a finite manager assignment. "
         "Do not modify files or begin work yet."

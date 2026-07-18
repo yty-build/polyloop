@@ -18,6 +18,12 @@ Record concrete constraints that the next Council hypothesis must address.
 
 - No Reality constraints yet.
 
+## Functionality Reuse
+
+Record unnecessary rebuilds, verified reuse, genuinely missing functionality, and demonstrated technical limitations with functionality-log and commit references.
+
+- No functionality reuse lessons yet.
+
 ## Open Questions
 
-- Establish the authoritative baseline, data, experiment tester, paper requirement, and Reality limits.
+- Establish the authoritative baseline, data, experiment tester, Owner Test Directive, paper requirement, and owner authorization rule.
